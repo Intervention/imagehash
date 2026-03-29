@@ -1,28 +1,30 @@
-<?php namespace Jenssegers\ImageHash\Implementations;
+<?php
 
-use Intervention\Image\Image;
-use Jenssegers\ImageHash\Hash;
-use Jenssegers\ImageHash\Implementation;
+declare(strict_types=1);
 
-class AverageHash implements Implementation
+namespace Intervention\ImageHash\Strategies;
+
+use Intervention\Image\Interfaces\ImageInterface;
+use Intervention\ImageHash\Hash;
+use Intervention\ImageHash\Interfaces\StrategyInterface;
+use Intervention\ImageHash\Analyzers\RgbArrayAnalyzer;
+
+class Average implements StrategyInterface
 {
-    protected int $size;
-
-    public function __construct(int $size = 8)
+    public function __construct(protected int $size = 8)
     {
-        $this->size = $size;
+        //
     }
 
-    public function hash(Image $image): Hash
+    public function hash(ImageInterface $image): Hash
     {
-        // Resize the image.
         $resized = $image->resize($this->size, $this->size);
 
         // Create an array of greyscale pixel values.
         $pixels = [];
         for ($y = 0; $y < $this->size; $y++) {
             for ($x = 0; $x < $this->size; $x++) {
-                $rgb = $resized->pickColor($x, $y)->toArray();
+                $rgb = $resized->analyze(new RgbArrayAnalyzer($x, $y));
                 $pixels[] = (int) floor(($rgb[0] * 0.299) + ($rgb[1] * 0.587) + ($rgb[2] * 0.114));
             }
         }

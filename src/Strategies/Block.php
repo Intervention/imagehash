@@ -1,43 +1,32 @@
 <?php
 
-namespace Jenssegers\ImageHash\Implementations;
+declare(strict_types=1);
 
-use Intervention\Image\Image;
-use InvalidArgumentException;
-use Jenssegers\ImageHash\Hash;
-use Jenssegers\ImageHash\Implementation;
+namespace Intervention\ImageHash\Strategies;
 
-class BlockHash implements Implementation
+use Intervention\Image\Exceptions\InvalidArgumentException;
+use Intervention\Image\Interfaces\ImageInterface;
+use Intervention\ImageHash\Hash;
+use Intervention\ImageHash\Interfaces\StrategyInterface;
+use Intervention\ImageHash\Analyzers\RgbArrayAnalyzer;
+
+class Block implements StrategyInterface
 {
-    /**
-     * @var string
-     */
-    const PRECISE = 'precise';
+    public const string PRECISE = 'precise';
+    public const string QUICK = 'quick';
 
-    /**
-     * @var string
-     */
-    const QUICK = 'quick';
-
-    protected string $mode;
-
-    protected int $size;
-
-    public function __construct(int $size = 16, $mode = self::PRECISE)
+    public function __construct(protected int $size = 16, protected string $mode = self::PRECISE)
     {
-        if ($size % 4 !== 0) {
+        if ($this->size % 4 !== 0) {
             throw new InvalidArgumentException('Amount of bits needs to be dividable by 4');
         }
 
-        if (!in_array($mode, [self::QUICK, self::PRECISE])) {
-            throw new InvalidArgumentException('Unknown mode ' . $mode);
+        if (!in_array($this->mode, [self::QUICK, self::PRECISE])) {
+            throw new InvalidArgumentException('Unknown mode ' . $this->mode);
         }
-
-        $this->size = $size;
-        $this->mode = $mode;
     }
 
-    public function hash(Image $image): Hash
+    public function hash(ImageInterface $image): Hash
     {
         if ($this->mode === self::QUICK) {
             return $this->even($image);
@@ -46,7 +35,7 @@ class BlockHash implements Implementation
         return $this->uneven($image);
     }
 
-    private function even(Image $image): Hash
+    private function even(ImageInterface $image): Hash
     {
         $width = $image->width();
         $height = $image->height();
@@ -63,7 +52,8 @@ class BlockHash implements Implementation
                     for ($ix = 0; $ix < $blocksizeX; $ix++) {
                         $cx = $x * $blocksizeX + $ix;
                         $cy = $y * $blocksizeY + $iy;
-                        $rgb = $image->pickColor($cx, $cy)->toArray();
+                        $rgb = $image->analyze(new RgbArrayAnalyzer($cx, $cy));
+
                         $value += $rgb[0] + $rgb[1] + $rgb[2];
                     }
                 }
@@ -75,7 +65,7 @@ class BlockHash implements Implementation
         return $this->blocksToBits($result, $blocksizeX * $blocksizeY);
     }
 
-    private function uneven(Image $image): Hash
+    private function uneven(ImageInterface $image): Hash
     {
         $imageWidth = $image->width();
         $imageHeight = $image->height();
@@ -114,7 +104,7 @@ class BlockHash implements Implementation
             }
 
             for ($x = 0; $x < $imageWidth; $x++) {
-                $rgb = $image->pickColor($x, $y)->toArray();
+                $rgb = $image->analyze(new RgbArrayAnalyzer($x, $y));
                 $value = $rgb[0] + $rgb[1] + $rgb[2];
 
                 if ($evenX) {
@@ -168,6 +158,9 @@ class BlockHash implements Implementation
         return $this->blocksToBits($result, $blockWidth * $blockHeight);
     }
 
+    /**
+     * @param array<float> $blocks
+     */
     protected function blocksToBits(array $blocks, float $pixelsPerBlock): Hash
     {
         $halfBlockValue = $pixelsPerBlock * 256 * 3 / 2;
@@ -198,6 +191,8 @@ class BlockHash implements Implementation
 
     /**
      * Get the median of the pixel values.
+     *
+     * @param array<float> $pixels
      */
     protected function median(array $pixels): float
     {

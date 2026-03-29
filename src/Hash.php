@@ -1,151 +1,195 @@
 <?php
 
-namespace Jenssegers\ImageHash;
+declare(strict_types=1);
 
+namespace Intervention\ImageHash;
+
+use Intervention\Image\Exceptions\InvalidArgumentException;
+use Intervention\ImageHash\Interfaces\HashInterface;
 use JsonSerializable;
+use Stringable;
 
-class Hash implements JsonSerializable
+class Hash implements HashInterface, Stringable, JsonSerializable
 {
-    /**
-     * A string containing zeros and ones
-     *
-     * @var string
-     */
-    protected string $binaryValue;
+    private const int BITS_PER_BYTE = 8;
+    private const int HEX_DIGITS_PER_BYTE = 2;
 
     /**
-     * Hash will be split in several integers if longer than PHP_INT_SIZE
-     *
-     * @var int[]|null
+     * @param array<int> $bytes
+     * @throws InvalidArgumentException
      */
-    protected ?array $integers = null;
-
-    /**
-     * @param string $binaryValue
-     */
-    private function __construct(string $binaryValue)
+    private function __construct(protected array $bytes)
     {
-        $this->binaryValue = $binaryValue;
-    }
-
-    /**
-     * Create a hash from an array of bits or a string containing a binary representation of the hash
-     *
-     * @param string|array $bits
-     *
-     * @return self
-     */
-    public static function fromBits(array|string $bits): self
-    {
-        if (\is_array($bits)) {
-            $bits = implode('', $bits);
+        if (count($bytes) === 0) {
+            throw new InvalidArgumentException('Unable to create hash from emtpy array of bytes.');
         }
 
-        return new self($bits);
+        foreach ($this->bytes as $byte) {
+            if (!is_int($byte) || $byte < 0 || $byte > 255) {
+                throw new InvalidArgumentException('Hash bytes must be integers between 0 and 255.');
+            }
+        }
     }
 
     /**
-     * Use integers representation and concatenate their hexadecimal representation
+     * Create hash from hexadecimal string.
+     */
+    public static function fromHex(string $hash): self
+    {
+        if ($hash === '') {
+            throw new InvalidArgumentException('Hash must be a non-empty hexadecimal string.');
+        }
+
+        if (!preg_match('/\A[0-9a-fA-F]+\z/', $hash)) {
+            throw new InvalidArgumentException('Hash must be a hexadecimal string.');
+        }
+
+        if (strlen($hash) % self::HEX_DIGITS_PER_BYTE !== 0) {
+            $hash = '0' . $hash;
+        }
+
+        return new self(array_map('hexdec', str_split($hash, self::HEX_DIGITS_PER_BYTE)));
+    }
+
+    /**
+     * Create hash from concatinated bit string or array of bits.
      *
-     * @return string
+     * @param string|array<int|string|bool> $hash
+     */
+    public static function fromBits(string|array $hash): self
+    {
+        if (is_array($hash)) {
+            if (count($hash) === 0) {
+                throw new InvalidArgumentException('Unable to create hash from emtpy array of bytes.');
+            }
+
+            // normalize array to concatinated bit string
+            $hash = implode('', array_map(fn(mixed $bit) => new BitParser($bit), $hash));
+        }
+
+        if ($hash === '') {
+            throw new InvalidArgumentException('Hash must be a non-empty string.');
+        }
+
+        if (!preg_match('/\A[01]+\z/', $hash)) {
+            throw new InvalidArgumentException('Hash must contain only bits ("0" or "1").');
+        }
+
+        $length = (int) ceil(strlen($hash) / self::BITS_PER_BYTE) * self::BITS_PER_BYTE;
+        $hash = str_pad($hash, $length, '0', STR_PAD_LEFT);
+
+        return new self(array_map('bindec', str_split($hash, self::BITS_PER_BYTE)));
+    }
+
+    /**
+     * Create hash from given utf-8 string.
+     */
+    public static function fromUtf8(string $hash): self
+    {
+        if ($hash === '') {
+            throw new InvalidArgumentException('Hash must be a non-empty string.');
+        }
+
+        return new self(array_map('ord', str_split($hash)));
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @see HashInterface::toHex()
      */
     public function toHex(): string
     {
-        if (\extension_loaded('gmp')) {
-            $gmp = gmp_init('0b'.$this->binaryValue);
-
-            return bin2hex(gmp_export($gmp));
-        }
-
-        return implode(
-            '',
-            array_map(
-                static function (int $int) {
-                    return dechex($int);
-                },
-                $this->getIntegers()
-            )
-        );
+        return join('', array_map(function (int $byte): string {
+            return str_pad(dechex($byte), self::HEX_DIGITS_PER_BYTE, '0', STR_PAD_LEFT);
+        }, $this->bytes));
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @see HashInterface::toBits()
+     */
     public function toBits(): string
     {
-        return $this->binaryValue;
+        return join('', array_map(function (int $byte): string {
+            return str_pad(decbin($byte), self::BITS_PER_BYTE, '0', STR_PAD_LEFT);
+        }, $this->bytes));
     }
 
     /**
-     * Used to compute hexadecimal value and can be used to store the hash in database as an integer
+     * {@inheritdoc}
      *
-     * @return int[]
+     * @see HashInterface::toUtf8()
      */
-    public function getIntegers(): array
+    public function toUtf8(): string
     {
-        if (null !== $this->integers) {
-            return $this->integers;
-        }
-
-        $maxIntSize = PHP_INT_SIZE * 8; // 8 bytes (a byte is 8 bits)
-
-        // Fixing binary if it doesn't fit an exact multiple of max int size
-        $fixedSizeBinary = str_pad(
-            $this->binaryValue,
-            ((int) ceil(\strlen($this->binaryValue) / $maxIntSize)) * $maxIntSize, // Is there a better way?
-            '0',
-            STR_PAD_LEFT
-        );
-
-        $this->integers = [];
-        foreach (str_split($fixedSizeBinary, $maxIntSize) as $split) {
-            $sign = $split[0]; // Extract sign
-            $int = bindec(substr($split, 1)); // Convert to decimal without first bit
-            $int |= ((bool) $sign) << ($maxIntSize - 1); // Reapply last bit with bitwise operation
-            $this->integers[] = $int;
-        }
-
-        return $this->integers;
+        return join('', array_map('chr', $this->bytes));
     }
 
     /**
-     * Super simple distance computation algorithm, we don't need anything else
+     * {@inheritdoc}
      *
-     * @param Hash $hash
-     *
-     * @return int
+     * @see HashInterface::distance()
      */
-    public function distance(Hash $hash): int
+    public function distance(HashInterface $hash): int
     {
-        if (\extension_loaded('gmp')) {
-            return gmp_hamdist('0b'.$this->toBits(), '0b'.$hash->toBits());
-        }
-
         $bits1 = $this->toBits();
         $bits2 = $hash->toBits();
-        $length = max(\strlen($bits1), \strlen($bits2));
 
-        // Add leading zeros so the bit strings are the same length.
+        if (extension_loaded('gmp')) {
+            return gmp_hamdist('0b' . $bits1, '0b' . $bits2);
+        }
+
+        // normalize bit strings to same length
+        $length = max(strlen($bits1), strlen($bits2));
         $bits1 = str_pad($bits1, $length, '0', STR_PAD_LEFT);
         $bits2 = str_pad($bits2, $length, '0', STR_PAD_LEFT);
 
-        return \count(array_diff_assoc(str_split($bits1), str_split($bits2)));
+        return count(array_diff_assoc(str_split($bits1), str_split($bits2)));
     }
 
     /**
-     * @param Hash $hash
+     * {@inheritdoc}
      *
-     * @return bool
+     * @see HashInterface::equals()
      */
-    public function equals(Hash $hash): bool
+    public function equals(HashInterface $hash): bool
     {
-        return ltrim($this->binaryValue, '0') === ltrim($hash->binaryValue, '0');
+        return $this->distance($hash) === 0;
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @see JsonSerializable::jsonSerialize()
+     */
+    public function jsonSerialize(): mixed
+    {
+        return $this->toHex();
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @see Stringable::__toString()
+     */
     public function __toString(): string
     {
         return $this->toHex();
     }
 
-    public function jsonSerialize(): string
+    /**
+     * Display debug info of current hash.
+     *
+     * @return array<mixed>
+     */
+    public function __debugInfo(): array
     {
-        return (string) $this;
+        return [
+            $this->toHex(),
+            $this->toBits(),
+            $this->bytes
+        ];
     }
 }

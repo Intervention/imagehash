@@ -1,39 +1,29 @@
-<?php namespace Jenssegers\ImageHash\Implementations;
+<?php
 
-use Intervention\Image\Image;
-use InvalidArgumentException;
-use Jenssegers\ImageHash\Hash;
-use Jenssegers\ImageHash\Implementation;
+declare(strict_types=1);
 
-class PerceptualHash implements Implementation
+namespace Intervention\ImageHash\Strategies;
+
+use Intervention\Image\Exceptions\InvalidArgumentException;
+use Intervention\Image\Interfaces\ImageInterface;
+use Intervention\ImageHash\Hash;
+use Intervention\ImageHash\Interfaces\StrategyInterface;
+use Intervention\ImageHash\Analyzers\RgbArrayAnalyzer;
+
+class Perceptual implements StrategyInterface
 {
-    /**
-     * @var string
-     */
-    const AVERAGE = 'average';
+    public const string AVERAGE = 'average';
+    public const string MEDIAN = 'median';
 
-    /**
-     * @var string
-     */
-    const MEDIAN = 'median';
-
-    protected int $size;
-
-    protected string $comparisonMethod;
-
-    public function __construct(int $size = 32, string $comparisonMethod = self::AVERAGE)
+    public function __construct(protected int $size = 32, protected string $comparisonMethod = self::AVERAGE)
     {
-        if (!in_array($comparisonMethod, [self::AVERAGE, self::MEDIAN])) {
+        if (!in_array($this->comparisonMethod, [self::AVERAGE, self::MEDIAN])) {
             throw new InvalidArgumentException('Unknown comparison mode ' . $comparisonMethod);
         }
-
-        $this->size = $size;
-        $this->comparisonMethod = $comparisonMethod;
     }
 
-    public function hash(Image $image): Hash
+    public function hash(ImageInterface $image): Hash
     {
-        // Resize the image.
         $resized = $image->resize($this->size, $this->size);
 
         $matrix = [];
@@ -43,7 +33,7 @@ class PerceptualHash implements Implementation
 
         for ($y = 0; $y < $this->size; $y++) {
             for ($x = 0; $x < $this->size; $x++) {
-                $rgb = $resized->pickColor($x, $y)->toArray();
+                $rgb = $resized->analyze(new RgbArrayAnalyzer($x, $y));
                 $row[$x] = (int) floor(($rgb[0] * 0.299) + ($rgb[1] * 0.587) + ($rgb[2] * 0.114));
             }
             $rows[$y] = $this->calculateDCT($row);
@@ -81,6 +71,9 @@ class PerceptualHash implements Implementation
 
     /**
      * Perform a 1 dimension Discrete Cosine Transformation.
+     *
+     * @param array<int|float> $matrix
+     * @return array<float>
      */
     protected function calculateDCT(array $matrix): array
     {
@@ -104,6 +97,8 @@ class PerceptualHash implements Implementation
 
     /**
      * Get the median of the pixel values.
+     *
+     * @param array<float> $pixels
      */
     protected function median(array $pixels): float
     {
@@ -118,6 +113,8 @@ class PerceptualHash implements Implementation
 
     /**
      * Get the average of the pixel values.
+     *
+     * @param array<float> $pixels
      */
     protected function average(array $pixels): float
     {

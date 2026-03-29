@@ -1,30 +1,27 @@
-version: '3'
-
 services:
-
-  gd:
-    build:
-      context: .
-      dockerfile: docker/gd.Dockerfile
+  tests:
+    build: ./
+    working_dir: /project
+    entrypoint: ["/usr/local/bin/entrypoint.sh", "./vendor/bin/phpunit"]
     volumes:
-      - .:/code
-    working_dir: /code
-    command: ./vendor/bin/phpunit
-
-  imagick:
-    build:
-      context: .
-      dockerfile: docker/imagick.Dockerfile
+      - ./:/project
+  coverage:
+    build: ./
+    working_dir: /project
+    entrypoint: ["/usr/local/bin/entrypoint.sh", "./vendor/bin/phpunit", "--coverage-text"]
     volumes:
-      - .:/code
-    working_dir: /code
-    command: ./vendor/bin/phpunit
-
-  gmp:
-    build:
-      context: .
-      dockerfile: docker/gmp.Dockerfile
+      - ./:/project
+    environment:
+      - XDEBUG_MODE=coverage
+  analysis:
+    build: ./
+    working_dir: /project
+    entrypoint: ["/usr/local/bin/entrypoint.sh", "./vendor/bin/phpstan", "analyze", "--memory-limit=512M"]
     volumes:
-      - .:/code
-    working_dir: /code
-    command: ./vendor/bin/phpunit
+      - ./:/project
+  standards:
+    build: ./
+    working_dir: /project
+    entrypoint: ["/usr/local/bin/entrypoint.sh", "./vendor/bin/phpcs"]
+    volumes:
+      - ./:/project
