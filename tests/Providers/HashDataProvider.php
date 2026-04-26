@@ -140,14 +140,6 @@ class HashDataProvider
             '6277101735386680763835789423207666416102355444464034512895',
             'ffffffffffffffffffffffffffffffffffffffffffffffff',
         ];
-
-        yield [0, '00'];
-        yield [1, '01'];
-        yield [255, 'ff'];
-        yield [256, '0100'];
-        yield [16711935, 'ff00ff'];
-        yield [4294967295, 'ffffffff'];
-        yield [0xFFFF, 'ffff'];
     }
 
     public static function provideHashDecimalOutputs(): Generator

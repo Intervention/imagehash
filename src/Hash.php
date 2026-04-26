@@ -84,10 +84,8 @@ class Hash implements HashInterface, Stringable, JsonSerializable
     /**
      * Create hash from decimal string.
      */
-    public static function fromDecimal(int|string $decimal): self
+    public static function fromDecimal(string $decimal): self
     {
-        $decimal = (string) $decimal;
-
         if ($decimal === '') {
             throw new InvalidArgumentException('Hash must be a non-empty string.');
         }
