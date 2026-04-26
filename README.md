@@ -84,22 +84,22 @@ These images are similar:
 ![Equals1](https://raw.githubusercontent.com/Intervention/imagehash/master/tests/images/tropical_high.jpg)
 ![Equals2](https://raw.githubusercontent.com/Intervention/imagehash/master/tests/images/tropical_watermark.jpg)
 
-	Image 1 hash: 3c3e0e1a3a1e1e1e (0011110000111110000011100001101000111010000111100001111000011110)
-	Image 2 hash: 3c3e0e3e3e1e1e1e (0011110000111110000011100011111000111110000111100001111000011110)
+	Image 1 hash: 8f9e9d8b0f0f1f07 (1000111110011110100111011000101100001111000011110001111100000111)
+	Image 2 hash: 8e9e958b0f2f1f07 (1000111010011110100101011000101100001111001011110001111100000111)
 	Hamming distance: 3
 
 These images are different:
 
 ![Equals1](https://raw.githubusercontent.com/Intervention/imagehash/master/tests/images/mountain_day.jpg)
-![Equals2](https://raw.githubusercontent.com/Intervention/imagehash/master/tests/images/mountain_night.jpg)
+![Equals2](https://raw.githubusercontent.com/Intervention/imagehash/master/tests/images/tropical_high.jpg)
 
-	Image 1 hash: 69684858535b7575 (0010100010101000101010001010100010101011001010110101011100110111)
-	Image 2 hash: e1e1e2a7bbaf6faf (0111000011110000111100101101001101011011011101010011010101001111)
-	Hamming distance: 32
+	Image 1 hash: 6c2b58432011e38e (0110110000101011010110000100001100100000000100011110001110001110)
+	Image 2 hash: 8f9e9d8b0f0f1f07 (1000111110011110100111011000101100001111000011110001111100000111)
+	Hamming distance: 35
 
 ## Authors
 
-This project is based on work originally developed by [Jens Segers](https://github.com/jenssegers) and released under the MIT License. Many thanks to him for sharing his work with the community, which made this fork possible.
+This project is based on work originally developed by [Jens Segers](https://github.com/jenssegers) and released under the MIT License. Many thanks to him for sharing his code with the community, which made this fork possible.
 
 This version is maintained by [Oliver Vogel](https://intervention.io) including modifications and improvements, but it builds directly on the solid foundation Jens created. 
 
