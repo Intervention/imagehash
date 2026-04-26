@@ -45,7 +45,7 @@ class Hash implements HashInterface, Stringable, JsonSerializable
         }
 
         if (strlen($hash) % self::HEX_DIGITS_PER_BYTE !== 0) {
-            $hash = '0' . $hash;
+            throw new InvalidArgumentException('Hash must contain an even number of hexadecimal characters.');
         }
 
         return new self(array_map('hexdec', str_split($hash, self::HEX_DIGITS_PER_BYTE)));

@@ -17,10 +17,6 @@ class HashDataProvider
     public static function provideHashHexInputs(): Generator
     {
         yield [
-            '0',
-            '00000000',
-        ];
-        yield [
             '00',
             '00000000',
         ];
@@ -156,7 +152,6 @@ class HashDataProvider
 
     public static function provideHashDecimalOutputs(): Generator
     {
-        yield ['0', '0'];
         yield ['00', '0'];
         yield ['01', '1'];
         yield ['0001', '1'];
@@ -181,8 +176,12 @@ class HashDataProvider
 
     public static function provideHashEquals(): Generator
     {
-        yield [Hash::fromHex('0'), Hash::fromHex('00'), true];
+        yield [Hash::fromHex('ffffff'), Hash::fromHex('ffffff'), true];
         yield [Hash::fromHex('ffffff'), Hash::fromHex('ff0055'), false];
+        yield [Hash::fromHex('74657374'), Hash::fromHex('74657374'), true];
+        yield [Hash::fromHex('74657374'), Hash::fromBits('01110100011001010111001101110100'), true];
+        yield [Hash::fromHex('74657374'), Hash::fromDecimal('1952805748'), true];
+        yield [Hash::fromHex('74657374'), Hash::fromBytes('test'), true];
     }
 
     public static function provideInvalidHexInputs(): Generator
@@ -190,6 +189,9 @@ class HashDataProvider
         yield [''];
         yield [' '];
         yield ['x'];
+        yield ['0'];
+        yield ['f'];
+        yield ['abc'];
         yield ['ffaaxx'];
         yield ['ffaa '];
     }
