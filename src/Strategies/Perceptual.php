@@ -17,33 +17,45 @@ class Perceptual implements StrategyInterface
 
     public function __construct(protected int $size = 32, protected string $comparisonMethod = self::AVERAGE)
     {
+        if ($this->size < 8) {
+            throw new InvalidArgumentException('Size must be at least 8');
+        }
+
         if (!in_array($this->comparisonMethod, [self::AVERAGE, self::MEDIAN])) {
             throw new InvalidArgumentException('Unknown comparison mode ' . $comparisonMethod);
         }
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @see StrategyInterface::hash()
+     */
     public function hash(ImageInterface $image): Hash
     {
         $resized = $image->resize($this->size, $this->size);
 
         $matrix = [];
-        $row = [];
         $rows = [];
-        $col = [];
 
         for ($y = 0; $y < $this->size; $y++) {
+            $row = [];
             for ($x = 0; $x < $this->size; $x++) {
                 $rgb = $resized->analyze(new RgbArrayAnalyzer($x, $y));
                 $row[$x] = (int) floor(($rgb[0] * 0.299) + ($rgb[1] * 0.587) + ($rgb[2] * 0.114));
             }
-            $rows[$y] = $this->calculateDCT($row);
+            $rows[$y] = $this->dct($row);
         }
 
         for ($x = 0; $x < $this->size; $x++) {
+            $col = [];
             for ($y = 0; $y < $this->size; $y++) {
                 $col[$y] = $rows[$y][$x];
             }
-            $matrix[$x] = $this->calculateDCT($col);
+            $colTransformed = $this->dct($col);
+            for ($y = 0; $y < $this->size; $y++) {
+                $matrix[$y][$x] = $colTransformed[$y];
+            }
         }
 
         // Extract the top 8x8 pixels.
@@ -54,11 +66,11 @@ class Perceptual implements StrategyInterface
             }
         }
 
-        if ($this->comparisonMethod === self::MEDIAN) {
-            $compare = $this->median($pixels);
-        } else {
-            $compare = $this->average($pixels);
-        }
+        $comparisonPixels = array_slice($pixels, 1);
+        $compare = match ($this->comparisonMethod) {
+            self::MEDIAN => $this->median($comparisonPixels),
+            default => $this->average($comparisonPixels),
+        };
 
         // Calculate hash.
         $bits = [];
@@ -75,7 +87,7 @@ class Perceptual implements StrategyInterface
      * @param array<int|float> $matrix
      * @return array<float>
      */
-    protected function calculateDCT(array $matrix): array
+    protected function dct(array $matrix): array
     {
         $transformed = [];
         $size = count($matrix);
@@ -118,9 +130,6 @@ class Perceptual implements StrategyInterface
      */
     protected function average(array $pixels): float
     {
-        // Calculate the average value from top 8x8 pixels, except for the first one.
-        $n = count($pixels) - 1;
-
-        return array_sum(array_slice($pixels, 1, $n)) / $n;
+        return array_sum($pixels) / count($pixels);
     }
 }

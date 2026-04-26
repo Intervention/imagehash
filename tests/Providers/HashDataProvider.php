@@ -202,7 +202,7 @@ class HashDataProvider
         yield [
             new Perceptual(),
             __DIR__ . '/../images/mountain_day.jpg',
-            'e261472c22c20e38',
+            '84e4d9011332ae60',
         ];
     }
 }
