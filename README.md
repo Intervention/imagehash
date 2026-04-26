@@ -58,7 +58,8 @@ use Intervention\Image\Drivers\Gd\Driver as GdDriver;
 use Intervention\ImageHash\Analyzers\ImageHashAnalyzer;
 
 $image = ImageManager::usingDriver(GdDriver::class)
-    ->decodePath('path/to/image.jpg');
+    ->decodePath('path/to/image.jpg')
+    ->scale(width: 300);
 
 $hash = $image->analyze(new ImageHashAnalyzer(new Difference()));
 ```
