@@ -22,7 +22,9 @@ composer require intervention/imagehash
 
 ## Usage
 
-### ImageHasher
+### Hashing
+
+#### ImageHasher
 
 The `ImageHasher` serves as the central starting point for all hashing operations. Depending on the PHP environment, a driver must be passed to it that matches the image extension (GD, Imagick or libvips) being used. Here is also the hashing strategy defined.
 
@@ -50,7 +52,7 @@ echo $hash;
 echo $hash->toHex();
 ```
 
-### ImageHashAnalyzer
+#### ImageHashAnalyzer
 
 Alternatively, you can choose not to use `ImageHasher` and use the `ImageHashAnalyzer` instead. This integrates more seamlessly into an existing Intervention Image processing pipeline, if you already have instances of `Intervention\Image\Interfaces\ImageInterface` - the results remain the same.
 
