@@ -1,4 +1,10 @@
-# ImageHash
+# Intervention ImageHash
+## Perceptual image hashing for PHP
+
+[![Latest Version](https://img.shields.io/packagist/v/intervention/imagehash.svg)](https://packagist.org/packages/intervention/imagehash)
+[![Build Status](https://github.com/Intervention/image/actions/workflows/run-tests.yml/badge.svg)](https://github.com/Intervention/imagehash/actions)
+[![Monthly Downloads](https://img.shields.io/packagist/dm/intervention/imagehash.svg)](https://packagist.org/packages/intervention/imagehash/stats)
+[![Support me on Ko-fi](https://raw.githubusercontent.com/Intervention/image/develop/.github/images/support.svg)](https://ko-fi.com/interventionphp)
 
 > A perceptual hash is a fingerprint of a multimedia file derived from various features from its content. Unlike cryptographic hash functions which rely on the avalanche effect of small changes in input leading to drastic changes in the output, perceptual hashes are "close" to one another if the features are similar.
 
