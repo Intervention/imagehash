@@ -21,7 +21,7 @@ class Hash implements HashInterface, Stringable, JsonSerializable
     private function __construct(protected array $bytes)
     {
         if (count($bytes) === 0) {
-            throw new InvalidArgumentException('Unable to create hash from emtpy array of bytes.');
+            throw new InvalidArgumentException('Unable to create hash from empty array of bytes.');
         }
 
         foreach ($this->bytes as $byte) {
@@ -60,7 +60,7 @@ class Hash implements HashInterface, Stringable, JsonSerializable
     {
         if (is_array($hash)) {
             if (count($hash) === 0) {
-                throw new InvalidArgumentException('Unable to create hash from emtpy array of bytes.');
+                throw new InvalidArgumentException('Unable to create hash from empty array of bits.');
             }
 
             // normalize array to concatinated bit string
