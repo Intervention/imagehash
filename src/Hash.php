@@ -273,8 +273,7 @@ class Hash implements HashInterface, Stringable, JsonSerializable
     public function __debugInfo(): array
     {
         return [
-            $this->toHex(),
-            $this->toBits(),
+            'hex' => $this->toHex(),
         ];
     }
 }
