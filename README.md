@@ -12,9 +12,7 @@ Perceptual hashes are a different concept compared to cryptographic hash functio
 
 ## Installation
 
-*This package has not reached a stable version yet, backwards compatibility may be broken between 0.x releases. Make sure to lock your version if you intend to use this in production!*
-
-Install using composer:
+Install this library using [Composer](https://getcomposer.org). Simply request the package with the following command:
 
 ```bash
 composer require intervention/imagehash
