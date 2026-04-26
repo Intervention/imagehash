@@ -97,6 +97,10 @@ These images are different:
 	Image 2 hash: 8f9e9d8b0f0f1f07 (1000111110011110100111011000101100001111000011110001111100000111)
 	Hamming distance: 35
 
+## Security
+
+If you discover any security related issues, please email oliver@intervention.io directly.
+
 ## Authors
 
 This project is based on work originally developed by [Jens Segers](https://github.com/jenssegers) and released under the MIT License. Many thanks to him for sharing his code with the community, which made this fork possible.
