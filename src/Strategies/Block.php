@@ -26,6 +26,9 @@ class Block implements StrategyInterface
         }
     }
 
+    /**
+     * Build the blockhash for the given image.
+     */
     public function hash(ImageInterface $image): Hash
     {
         if ($this->mode === self::QUICK) {
@@ -35,7 +38,10 @@ class Block implements StrategyInterface
         return $this->uneven($image);
     }
 
-    private function even(ImageInterface $image): Hash
+    /**
+     * Compute hash using even, non-overlapping blocks.
+     */
+    protected function even(ImageInterface $image): Hash
     {
         $width = $image->width();
         $height = $image->height();
@@ -52,9 +58,7 @@ class Block implements StrategyInterface
                     for ($ix = 0; $ix < $blocksizeX; $ix++) {
                         $cx = $x * $blocksizeX + $ix;
                         $cy = $y * $blocksizeY + $iy;
-                        $rgb = $image->analyze(new RgbArrayAnalyzer($cx, $cy));
-
-                        $value += $rgb[0] + $rgb[1] + $rgb[2];
+                        $value += $this->pixelValue($image, $cx, $cy);
                     }
                 }
 
@@ -65,12 +69,19 @@ class Block implements StrategyInterface
         return $this->blocksToBits($result, $blocksizeX * $blocksizeY);
     }
 
-    private function uneven(ImageInterface $image): Hash
+    /**
+     * Compute hash using weighted blocks for uneven dimensions.
+     */
+    protected function uneven(ImageInterface $image): Hash
     {
         $imageWidth = $image->width();
         $imageHeight = $image->height();
         $evenX = $imageWidth % $this->size === 0;
         $evenY = $imageHeight % $this->size === 0;
+
+        if ($evenX && $evenY) {
+            return $this->even($image);
+        }
         $blockWidth = $imageWidth / $this->size;
         $blockHeight = $imageHeight / $this->size;
 
@@ -104,8 +115,7 @@ class Block implements StrategyInterface
             }
 
             for ($x = 0; $x < $imageWidth; $x++) {
-                $rgb = $image->analyze(new RgbArrayAnalyzer($x, $y));
-                $value = $rgb[0] + $rgb[1] + $rgb[2];
+                $value = $this->pixelValue($image, $x, $y);
 
                 if ($evenX) {
                     $blockLeft = $blockRight = (int) floor($x / $blockWidth);
@@ -141,6 +151,7 @@ class Block implements StrategyInterface
                 if (!isset($blocks[$blockBottom][$blockRight])) {
                     $blocks[$blockBottom][$blockRight] = 0;
                 }
+
                 $blocks[$blockTop][$blockLeft] += $value * $weightTop * $weightLeft;
                 $blocks[$blockTop][$blockRight] += $value * $weightTop * $weightRight;
                 $blocks[$blockBottom][$blockLeft] += $value * $weightBottom * $weightLeft;
@@ -159,6 +170,23 @@ class Block implements StrategyInterface
     }
 
     /**
+     * Return the summed RGB value for the pixel.
+     */
+    protected function pixelValue(ImageInterface $image, int $x, int $y): int
+    {
+        $rgb = $image->analyze(new RgbArrayAnalyzer($x, $y));
+
+        // treat transparent alpha as white
+        if (isset($rgb[3]) && $rgb[3] === 0) {
+            return 255 * 3;
+        }
+
+        return $rgb[0] + $rgb[1] + $rgb[2];
+    }
+
+    /**
+     * Convert block values into hash bits.
+     *
      * @param array<float> $blocks
      */
     protected function blocksToBits(array $blocks, float $pixelsPerBlock): Hash
@@ -166,7 +194,7 @@ class Block implements StrategyInterface
         $halfBlockValue = $pixelsPerBlock * 256 * 3 / 2;
 
         // Compare medians across four horizontal bands.
-        $bandsize = (int) floor(count($blocks) / 4);
+        $bandsize = (int) (count($blocks) / 4);
 
         $bits = [];
 
