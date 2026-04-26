@@ -225,16 +225,14 @@ class Hash implements HashInterface, Stringable, JsonSerializable
         $bits1 = $this->toBits();
         $bits2 = $hash->toBits();
 
-        if (extension_loaded('gmp') && function_exists('gmp_hamdist')) {
-            $gmpHamdist = 'gmp_hamdist';
-
-            return $gmpHamdist('0b' . $bits1, '0b' . $bits2);
-        }
-
         // normalize bit strings to same length
         $length = max(strlen($bits1), strlen($bits2));
         $bits1 = str_pad($bits1, $length, '0', STR_PAD_LEFT);
         $bits2 = str_pad($bits2, $length, '0', STR_PAD_LEFT);
+
+        if (extension_loaded('gmp') && function_exists('gmp_hamdist')) {
+            return gmp_hamdist('0b1' . $bits1, '0b1' . $bits2);
+        }
 
         return count(array_diff_assoc(str_split($bits1), str_split($bits2)));
     }
