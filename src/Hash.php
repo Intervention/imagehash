@@ -279,7 +279,6 @@ class Hash implements HashInterface, Stringable, JsonSerializable
         return [
             $this->toHex(),
             $this->toBits(),
-            $this->bytes
         ];
     }
 }
