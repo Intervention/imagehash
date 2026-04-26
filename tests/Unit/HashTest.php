@@ -75,4 +75,32 @@ class HashTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         Hash::fromBytes($input);
     }
+
+    #[DataProviderExternal(HashDataProvider::class, 'provideHashHexInputs')]
+    public function testHexRoundTrips(mixed ...$input): void
+    {
+        $hex = strtolower($input[0]);
+        $this->assertEquals($hex, Hash::fromHex($hex)->toHex());
+    }
+
+    #[DataProviderExternal(HashDataProvider::class, 'provideHashByteInputs')]
+    public function testByteRoundTrips(mixed ...$input): void
+    {
+        $this->assertEquals($input[0], Hash::fromBytes($input[0])->toBytes());
+    }
+
+    #[DataProviderExternal(HashDataProvider::class, 'provideHashBitInputs')]
+    public function testBitRoundTrips(mixed ...$input): void
+    {
+        $bits = $input[0];
+        if (is_string($bits)) {
+            $this->assertEquals($bits, Hash::fromBytes($bits)->toBytes());
+        }
+    }
+
+    #[DataProviderExternal(HashDataProvider::class, 'provideHashDecimalInputs')]
+    public function testDecimalRoundTrips(mixed ...$input): void
+    {
+        $this->assertEquals($input[0], Hash::fromDecimal($input[0])->toDecimal());
+    }
 }
