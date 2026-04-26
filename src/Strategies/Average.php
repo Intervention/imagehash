@@ -16,6 +16,11 @@ class Average implements StrategyInterface
         //
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @see StrategyInterface::hash()
+     */
     public function hash(ImageInterface $image): Hash
     {
         $resized = $image->resize($this->size, $this->size);
@@ -33,9 +38,7 @@ class Average implements StrategyInterface
         $average = floor(array_sum($pixels) / count($pixels));
 
         // Each hash bit is set based on whether the current pixels value is above or below the average.
-        $bits = array_map(function ($pixel) use ($average) {
-            return (int) ($pixel > $average);
-        }, $pixels);
+        $bits = array_map(fn(int $pixel): int => (int) ($pixel > $average), $pixels);
 
         return Hash::fromBits($bits);
     }
