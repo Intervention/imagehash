@@ -14,9 +14,14 @@ interface HashInterface extends Stringable
     public function distance(self $hash): int;
 
     /**
+     * Calculate distance to given hash normalized to a value between 0-1.
+     */
+    public function distanceNormalized(self $hash): float;
+
+    /**
      * Determine if given hash is equal to hash.
      */
-    public function equals(self $hash): bool;
+    public function equals(self $hash, int $leeway = 0): bool;
 
     /**
      * Transform hash to hexadecimal string.
@@ -24,17 +29,12 @@ interface HashInterface extends Stringable
     public function toHex(): string;
 
     /**
-     * Convert hash into a string of concatinated bits.
+     * Transform hash to a base64-encoded string.
      */
-    public function toBits(): string;
+    public function toBase64(): string;
 
     /**
-     * Convert hash into a decimal string.
+     * Calculate bit length of hash.
      */
-    public function toDecimal(): string;
-
-    /**
-     * Transform hash to binary string.
-     */
-    public function toBytes(): string;
+    public function bitLength(): int;
 }
