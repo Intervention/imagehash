@@ -4,7 +4,7 @@
 [![Latest Version](https://img.shields.io/packagist/v/intervention/imagehash.svg)](https://packagist.org/packages/intervention/imagehash)
 [![Build Status](https://github.com/Intervention/image/actions/workflows/run-tests.yml/badge.svg)](https://github.com/Intervention/imagehash/actions)
 [![Monthly Downloads](https://img.shields.io/packagist/dm/intervention/imagehash.svg)](https://packagist.org/packages/intervention/imagehash/stats)
-[![Support me on Ko-fi](https://raw.githubusercontent.com/Intervention/imagehash/main/.github/images/support.svg)](https://ko-fi.com/interventionphp)
+[![Support me on Ko-fi](https://raw.githubusercontent.com/Intervention/imagehash/develop/.github/images/support.svg)](https://ko-fi.com/interventionphp)
 
 > A perceptual hash is a fingerprint of a multimedia file derived from various features from its content. Unlike cryptographic hash functions which rely on the avalanche effect of small changes in input leading to drastic changes in the output, perceptual hashes are "close" to one another if the features are similar.
 
@@ -81,8 +81,8 @@ $hash = Hash::fromUtf8('test');
 
 These images are similar:
 
-![Equals1](https://raw.githubusercontent.com/Intervention/imagehash/master/tests/images/tropical_high.jpg)
-![Equals2](https://raw.githubusercontent.com/Intervention/imagehash/master/tests/images/tropical_watermark.jpg)
+![Equals1](https://raw.githubusercontent.com/Intervention/imagehash/develop/tests/images/tropical_high.jpg)
+![Equals2](https://raw.githubusercontent.com/Intervention/imagehash/develop/tests/images/tropical_watermark.jpg)
 
 	Image 1 hash: 8f9e9d8b0f0f1f07 (1000111110011110100111011000101100001111000011110001111100000111)
 	Image 2 hash: 8e9e958b0f2f1f07 (1000111010011110100101011000101100001111001011110001111100000111)
@@ -90,8 +90,8 @@ These images are similar:
 
 These images are different:
 
-![Equals1](https://raw.githubusercontent.com/Intervention/imagehash/master/tests/images/mountain_day.jpg)
-![Equals2](https://raw.githubusercontent.com/Intervention/imagehash/master/tests/images/tropical_high.jpg)
+![Equals1](https://raw.githubusercontent.com/Intervention/imagehash/develop/tests/images/mountain_day.jpg)
+![Equals2](https://raw.githubusercontent.com/Intervention/imagehash/develop/tests/images/tropical_high.jpg)
 
 	Image 1 hash: 6c2b58432011e38e (0110110000101011010110000100001100100000000100011110001110001110)
 	Image 2 hash: 8f9e9d8b0f0f1f07 (1000111110011110100111011000101100001111000011110001111100000111)
