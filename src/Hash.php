@@ -131,9 +131,9 @@ class Hash implements HashInterface, Stringable, JsonSerializable
     }
 
     /**
-     * Create hash from given utf-8 string.
+     * Create hash from given byte string.
      */
-    public static function fromUtf8(string $hash): self
+    public static function fromBytes(string $hash): self
     {
         if ($hash === '') {
             throw new InvalidArgumentException('Hash must be a non-empty string.');
@@ -208,9 +208,9 @@ class Hash implements HashInterface, Stringable, JsonSerializable
     /**
      * {@inheritdoc}
      *
-     * @see HashInterface::toUtf8()
+     * @see HashInterface::toBytes()
      */
-    public function toUtf8(): string
+    public function toBytes(): string
     {
         return join('', array_map('chr', $this->bytes));
     }

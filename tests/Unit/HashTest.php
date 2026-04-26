@@ -31,10 +31,10 @@ class HashTest extends TestCase
         $this->assertEquals($hex, Hash::fromDecimal($decimal)->toHex());
     }
 
-    #[DataProviderExternal(HashDataProvider::class, 'provideHashUtf8Inputs')]
-    public function testFromUtf8(string $utf8, string $bits): void
+    #[DataProviderExternal(HashDataProvider::class, 'provideHashByteInputs')]
+    public function testFromBytes(string $bytes, string $bits): void
     {
-        $this->assertEquals($bits, Hash::fromUtf8($utf8)->toBits());
+        $this->assertEquals($bits, Hash::fromBytes($bytes)->toBits());
     }
 
     #[DataProviderExternal(HashDataProvider::class, 'provideHashDecimalOutputs')]
@@ -69,10 +69,10 @@ class HashTest extends TestCase
         Hash::fromBits($input);
     }
 
-    #[DataProviderExternal(HashDataProvider::class, 'provideInvalidUtf8Inputs')]
-    public function testInvalidUtf8Inputs(mixed $input): void
+    #[DataProviderExternal(HashDataProvider::class, 'provideInvalidByteInputs')]
+    public function testInvalidByteInputs(mixed $input): void
     {
         $this->expectException(InvalidArgumentException::class);
-        Hash::fromUtf8($input);
+        Hash::fromBytes($input);
     }
 }

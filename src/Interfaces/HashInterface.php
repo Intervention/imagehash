@@ -34,7 +34,7 @@ interface HashInterface extends Stringable
     public function toDecimal(): string;
 
     /**
-     * Transform hash to utf-8 string.
+     * Transform hash to binary string.
      */
-    public function toUtf8(): string;
+    public function toBytes(): string;
 }

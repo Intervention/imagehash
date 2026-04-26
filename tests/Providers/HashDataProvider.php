@@ -125,7 +125,7 @@ class HashDataProvider
         ];
     }
 
-    public static function provideHashUtf8Inputs(): Generator
+    public static function provideHashByteInputs(): Generator
     {
         yield ['X', '01011000'];
         yield ['XA', '0101100001000001'];
@@ -212,7 +212,7 @@ class HashDataProvider
         yield [[1, 0, 2]];
     }
 
-    public static function provideInvalidUtf8Inputs(): Generator
+    public static function provideInvalidByteInputs(): Generator
     {
         yield [''];
     }
