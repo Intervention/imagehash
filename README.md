@@ -22,27 +22,50 @@ composer require intervention/imagehash
 
 ## Usage
 
-The library comes with 4 built-in hashing strategies:
+### ImageHasher
+
+The `ImageHasher` serves as the central starting point for all hashing operations. Depending on the PHP environment, a driver must be passed to it that matches the image extension (GD, Imagick or libvips) being used. Here is also the hashing strategy defined.
+
+The library comes with four built-in hashing strategies:
 
  - `Intervention\ImageHash\Strategies\Average` - Hash based the average image color
  - `Intervention\ImageHash\Strategies\Difference` - Hash based on the previous pixel
  - `Intervention\ImageHash\Strategies\Block` - Hash based on blockhash.io
  - `Intervention\ImageHash\Strategies\Perceptual` - The original pHash
 
-Choose one of these strategies. If you don't know which one to use, try the `Difference` strategy. Some strategies allow some configuration, be sure to check the constructor.
+Choose one of these strategies. If you don't know which one to use, try the `Difference` strategy. Some strategies allow some configuration, be sure to check the constructors.
+
+To generate hashes, the `hash()` method is used, which can read from [various image sources](https://image.intervention.io/v4/basics/instantiation#supported-image-sources) like paths, raw image data and more.
 
 ```php
-use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\Drivers\Gd\Driver as GdDriver;
 use Intervention\ImageHash\ImageHasher;
 use Intervention\ImageHash\Strategies\Difference;
 
-$hasher = new ImageHasher(new Driver(), new Difference());
+$hasher = new ImageHasher(new GdDriver(), new Difference());
 $hash = $hasher->hash('path/to/image.jpg');
 
 echo $hash;
 // or
 echo $hash->toHex();
 ```
+
+### ImageHashAnalyzer
+
+Alternatively, you can choose not to use `ImageHasher` and use the `ImageHashAnalyzer` instead. This integrates more seamlessly into an existing Intervention Image processing pipeline, if you already have instances of `Intervention\Image\Interfaces\ImageInterface` - the results remain the same.
+
+```php
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver as GdDriver;
+use Intervention\ImageHash\Analyzers\ImageHashAnalyzer;
+
+$image = ImageManager::usingDriver(GdDriver::class)
+    ->decodePath('path/to/image.jpg');
+
+$hash = $image->analyze(new ImageHashAnalyzer(new Difference()));
+```
+
+### Hash
 
 The resulting `Hash` object, is a hexadecimal image fingerprint that can be stored once calculated. Two fingerprints can be compared by the hamming distance for similarities. Low distance values will indicate that the images are similar or the same, high distance values indicate that the images are different. Use the following methods for comparisons:
 
