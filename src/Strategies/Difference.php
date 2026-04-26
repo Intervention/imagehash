@@ -16,6 +16,11 @@ class Difference implements StrategyInterface
         //
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @see StrategyInterface::hash()
+     */
     public function hash(ImageInterface $image): Hash
     {
         // For this implementation we create a 8x9 image.
