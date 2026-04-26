@@ -58,6 +58,7 @@ The `Hash` object can return the internal binary hash in a couple of different f
 ```php
 echo $hash->toHex(); // "74657374"
 echo $hash->toBits(); // "01110100011001010111001101110100"
+echo $hash->toDecimal(); // "1952805748"
 echo $hash->toUtf8(); // "test"
 ```
 
@@ -66,13 +67,14 @@ If you want to reconstruct a `Hash` object from a previous calculated value, use
 ```php
 $hash = Hash::fromHex('74657374');
 $hash = Hash::fromBits('01110100011001010111001101110100');
+$hash = Hash::fromDecimal('1952805748');
 $hash = Hash::fromUtf8('test');
 ```
 
 ## Requirements
 
  - PHP 8.3 or higher
- - The [gd](http://php.net/manual/en/book.image.php), [imagick](http://php.net/manual/en/book.imagick.php) or [libvips](https://www.libvips.org) extension
+ - The [GD](http://php.net/manual/en/book.image.php), [Imagick](http://php.net/manual/en/book.imagick.php) or [libvips](https://www.libvips.org) extension
  - Optionally, install the [GMP](http://php.net/manual/en/book.gmp.php) extension for faster fingerprint comparisons
 
 ## Demo

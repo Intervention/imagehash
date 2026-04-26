@@ -132,6 +132,44 @@ class HashDataProvider
         yield ['😀', '11110000100111111001100010000000'];
     }
 
+    public static function provideHashDecimalInputs(): Generator
+    {
+        yield ['0', '00'];
+        yield ['1', '01'];
+        yield ['255', 'ff'];
+        yield ['256', '0100'];
+        yield ['16711935', 'ff00ff'];
+        yield ['4294967295', 'ffffffff'];
+        yield [
+            '6277101735386680763835789423207666416102355444464034512895',
+            'ffffffffffffffffffffffffffffffffffffffffffffffff',
+        ];
+
+        yield [0, '00'];
+        yield [1, '01'];
+        yield [255, 'ff'];
+        yield [256, '0100'];
+        yield [16711935, 'ff00ff'];
+        yield [4294967295, 'ffffffff'];
+        yield [0xFFFF, 'ffff'];
+    }
+
+    public static function provideHashDecimalOutputs(): Generator
+    {
+        yield ['0', '0'];
+        yield ['00', '0'];
+        yield ['01', '1'];
+        yield ['0001', '1'];
+        yield ['ff', '255'];
+        yield ['0100', '256'];
+        yield ['ff00ff', '16711935'];
+        yield ['ffffffff', '4294967295'];
+        yield [
+            'ffffffffffffffffffffffffffffffffffffffffffffffff',
+            '6277101735386680763835789423207666416102355444464034512895',
+        ];
+    }
+
     public static function provideHashDistances(): Generator
     {
         yield ['aaccee', 'aaccee', 0];

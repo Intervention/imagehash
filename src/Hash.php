@@ -82,6 +82,55 @@ class Hash implements HashInterface, Stringable, JsonSerializable
     }
 
     /**
+     * Create hash from decimal string.
+     */
+    public static function fromDecimal(int|string $decimal): self
+    {
+        $decimal = (string) $decimal;
+
+        if ($decimal === '') {
+            throw new InvalidArgumentException('Hash must be a non-empty string.');
+        }
+
+        if (!preg_match('/\A[0-9]+\z/', $decimal)) {
+            throw new InvalidArgumentException('Hash must be a decimal string.');
+        }
+
+        $decimal = ltrim($decimal, '0');
+
+        if ($decimal === '') {
+            return self::fromBits('0');
+        }
+
+        if (extension_loaded('gmp') && function_exists('gmp_init') && function_exists('gmp_strval')) {
+            return self::fromBits(gmp_strval(gmp_init($decimal, 10), 2));
+        }
+
+        $bits = '';
+
+        while ($decimal !== '0') {
+            $next = '';
+            $carry = 0;
+            $length = strlen($decimal);
+
+            for ($index = 0; $index < $length; $index++) {
+                $value = ($carry * 10) + (int) $decimal[$index];
+                $digit = intdiv($value, 2);
+                $carry = $value % 2;
+
+                if ($digit !== 0 || $next !== '') {
+                    $next .= (string) $digit;
+                }
+            }
+
+            $bits = (string) $carry . $bits;
+            $decimal = $next === '' ? '0' : $next;
+        }
+
+        return self::fromBits($bits);
+    }
+
+    /**
      * Create hash from given utf-8 string.
      */
     public static function fromUtf8(string $hash): self
@@ -120,6 +169,45 @@ class Hash implements HashInterface, Stringable, JsonSerializable
     /**
      * {@inheritdoc}
      *
+     * @see HashInterface::toDecimal()
+     */
+    public function toDecimal(): string
+    {
+        $bits = ltrim($this->toBits(), '0');
+
+        if ($bits === '') {
+            return '0';
+        }
+
+        if (extension_loaded('gmp') && function_exists('gmp_init') && function_exists('gmp_strval')) {
+            $gmpInit = 'gmp_init';
+            $gmpStrval = 'gmp_strval';
+
+            return $gmpStrval($gmpInit($bits, 2), 10);
+        }
+
+        $decimal = '0';
+        $length = strlen($bits);
+
+        for ($index = 0; $index < $length; $index++) {
+            $keep = (int) $bits[$index];
+            for ($pos = strlen($decimal) - 1; $pos >= 0; $pos--) {
+                $value = ((int) $decimal[$pos] * 2) + $keep;
+                $decimal[$pos] = (string) ($value % 10);
+                $keep = intdiv($value, 10);
+            }
+
+            if ($keep > 0) {
+                $decimal = (string) $keep . $decimal;
+            }
+        }
+
+        return $decimal;
+    }
+
+    /**
+     * {@inheritdoc}
+     *
      * @see HashInterface::toUtf8()
      */
     public function toUtf8(): string
@@ -137,8 +225,10 @@ class Hash implements HashInterface, Stringable, JsonSerializable
         $bits1 = $this->toBits();
         $bits2 = $hash->toBits();
 
-        if (extension_loaded('gmp')) {
-            return gmp_hamdist('0b' . $bits1, '0b' . $bits2);
+        if (extension_loaded('gmp') && function_exists('gmp_hamdist')) {
+            $gmpHamdist = 'gmp_hamdist';
+
+            return $gmpHamdist('0b' . $bits1, '0b' . $bits2);
         }
 
         // normalize bit strings to same length
