@@ -79,6 +79,20 @@ class Hash implements HashInterface, Stringable, JsonSerializable
     }
 
     /**
+     * Create hash from a base64-encoded string.
+     */
+    public static function fromBase64(string $hash): self
+    {
+        $hash = base64_decode($hash, strict: true);
+
+        if ($hash === false) {
+            throw new InvalidArgumentException('Unable to base64-decode string');
+        }
+
+        return new self($hash);
+    }
+
+    /**
      * {@inheritdoc}
      *
      * @see HashInterface::toHex()
@@ -120,12 +134,22 @@ class Hash implements HashInterface, Stringable, JsonSerializable
     /**
      * {@inheritdoc}
      *
+     * @see HashInterface::toBase64()
+     */
+    public function toBase64(): string
+    {
+        return base64_encode($this->bytes);
+    }
+
+    /**
+     * {@inheritdoc}
+     *
      * @see HashInterface::distance()
      */
     public function distance(HashInterface $hash): int
     {
         if ($this->bitLength() !== $hash->bitLength()) {
-            throw new InvalidArgumentException("Hashes must be of equal length");
+            throw new InvalidArgumentException("Hashes must have the same bit length for comparison");
         }
 
         $bits1 = $this->toBits();
@@ -187,6 +211,7 @@ class Hash implements HashInterface, Stringable, JsonSerializable
     {
         return [
             'hex' => $this->toHex(),
+            'bitLength' => $this->bitLength(),
         ];
     }
 }

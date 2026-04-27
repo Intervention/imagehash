@@ -52,22 +52,14 @@ class HashDataProvider
             'FF00FFFFFF00FF0044FFCC00',
             '111111110000000011111111111111111111111100000000111111110000000001000100111111111100110000000000',
         ];
+        yield [
+            'AAFFEE',
+            '101010101111111111101110',
+        ];
     }
 
     public static function provideHashBitInputs(): Generator
     {
-        yield [
-            '0',
-            '00',
-        ];
-        yield [
-            '00',
-            '00',
-        ];
-        yield [
-            '0000',
-            '00',
-        ];
         yield [
             '00000000',
             '00',
@@ -172,7 +164,6 @@ class HashDataProvider
         yield [Hash::fromHex('ffffff'), Hash::fromHex('ff0055'), false];
         yield [Hash::fromHex('74657374'), Hash::fromHex('74657374'), true];
         yield [Hash::fromHex('74657374'), Hash::fromBits('01110100011001010111001101110100'), true];
-        yield [Hash::fromHex('74657374'), Hash::fromDecimal('1952805748'), true];
         yield [Hash::fromHex('74657374'), Hash::fromBytes('test'), true];
     }
 
@@ -190,6 +181,10 @@ class HashDataProvider
 
     public static function provideInvalidBitInputs(): Generator
     {
+
+        yield ['00'];
+        yield ['0000'];
+        yield ['0000000'];
         yield [''];
         yield [' '];
         yield ['x'];

@@ -8,6 +8,7 @@ use Intervention\Image\Interfaces\ImageInterface;
 use Intervention\ImageHash\Hash;
 use Intervention\ImageHash\Interfaces\StrategyInterface;
 use Intervention\ImageHash\Analyzers\RgbArrayAnalyzer;
+use Intervention\ImageHash\Interfaces\HashInterface;
 
 class Difference implements StrategyInterface
 {
@@ -21,7 +22,7 @@ class Difference implements StrategyInterface
      *
      * @see StrategyInterface::hash()
      */
-    public function hash(ImageInterface $image): Hash
+    public function hash(ImageInterface $image): HashInterface
     {
         // For this implementation we create a 8x9 image.
         $width = $this->size + 1;

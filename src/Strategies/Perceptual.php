@@ -9,6 +9,7 @@ use Intervention\Image\Interfaces\ImageInterface;
 use Intervention\ImageHash\Hash;
 use Intervention\ImageHash\Interfaces\StrategyInterface;
 use Intervention\ImageHash\Analyzers\RgbArrayAnalyzer;
+use Intervention\ImageHash\Interfaces\HashInterface;
 
 class Perceptual implements StrategyInterface
 {
@@ -31,7 +32,7 @@ class Perceptual implements StrategyInterface
      *
      * @see StrategyInterface::hash()
      */
-    public function hash(ImageInterface $image): Hash
+    public function hash(ImageInterface $image): HashInterface
     {
         $resized = $image->resize($this->size, $this->size);
 

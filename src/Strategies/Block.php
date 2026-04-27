@@ -9,6 +9,7 @@ use Intervention\Image\Interfaces\ImageInterface;
 use Intervention\ImageHash\Hash;
 use Intervention\ImageHash\Interfaces\StrategyInterface;
 use Intervention\ImageHash\Analyzers\RgbArrayAnalyzer;
+use Intervention\ImageHash\Interfaces\HashInterface;
 
 class Block implements StrategyInterface
 {
@@ -29,7 +30,7 @@ class Block implements StrategyInterface
     /**
      * Build the blockhash for the given image.
      */
-    public function hash(ImageInterface $image): Hash
+    public function hash(ImageInterface $image): HashInterface
     {
         if ($this->mode === self::QUICK) {
             return $this->even($image);
@@ -41,7 +42,7 @@ class Block implements StrategyInterface
     /**
      * Compute hash using even, non-overlapping blocks.
      */
-    protected function even(ImageInterface $image): Hash
+    protected function even(ImageInterface $image): HashInterface
     {
         $width = $image->width();
         $height = $image->height();
@@ -72,7 +73,7 @@ class Block implements StrategyInterface
     /**
      * Compute hash using weighted blocks for uneven dimensions.
      */
-    protected function uneven(ImageInterface $image): Hash
+    protected function uneven(ImageInterface $image): HashInterface
     {
         $imageWidth = $image->width();
         $imageHeight = $image->height();
@@ -189,7 +190,7 @@ class Block implements StrategyInterface
      *
      * @param array<float> $blocks
      */
-    protected function blocksToBits(array $blocks, float $pixelsPerBlock): Hash
+    protected function blocksToBits(array $blocks, float $pixelsPerBlock): HashInterface
     {
         $halfBlockValue = $pixelsPerBlock * 256 * 3 / 2;
 

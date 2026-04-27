@@ -34,6 +34,11 @@ interface HashInterface extends Stringable
     public function toBytes(): string;
 
     /**
+     * Return base64-encoded bytes of hash.
+     */
+    public function toBase64(): string;
+
+    /**
      * Return bit length of hash.
      */
     public function bitLength(): int;

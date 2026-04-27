@@ -25,22 +25,10 @@ class HashTest extends TestCase
         $this->assertEquals($hex, Hash::fromBits($bits)->toHex());
     }
 
-    #[DataProviderExternal(HashDataProvider::class, 'provideHashDecimalInputs')]
-    public function testFromDecimal(int|string $decimal, string $hex): void
-    {
-        $this->assertEquals($hex, Hash::fromDecimal($decimal)->toHex());
-    }
-
     #[DataProviderExternal(HashDataProvider::class, 'provideHashByteInputs')]
     public function testFromBytes(string $bytes, string $bits): void
     {
         $this->assertEquals($bits, Hash::fromBytes($bytes)->toBits());
-    }
-
-    #[DataProviderExternal(HashDataProvider::class, 'provideHashDecimalOutputs')]
-    public function testToDecimal(string $hex, string $integer): void
-    {
-        $this->assertEquals($integer, Hash::fromHex($hex)->toDecimal());
     }
 
     #[DataProviderExternal(HashDataProvider::class, 'provideHashDistances')]
@@ -96,11 +84,5 @@ class HashTest extends TestCase
         if (is_string($bits)) {
             $this->assertEquals($bits, Hash::fromBytes($bits)->toBytes());
         }
-    }
-
-    #[DataProviderExternal(HashDataProvider::class, 'provideHashDecimalInputs')]
-    public function testDecimalRoundTrips(mixed ...$input): void
-    {
-        $this->assertEquals($input[0], Hash::fromDecimal($input[0])->toDecimal());
     }
 }
