@@ -16,7 +16,7 @@ interface HashInterface extends Stringable
     /**
      * Determine if given hash is equal to hash.
      */
-    public function equals(self $hash): bool;
+    public function equals(self $hash, int $leeway = 0): bool;
 
     /**
      * Transform hash to hexadecimal string.
@@ -24,17 +24,22 @@ interface HashInterface extends Stringable
     public function toHex(): string;
 
     /**
-     * Convert hash into a string of concatinated bits.
+     * Convert hash into a array of bits.
      */
-    public function toBits(): string;
+    public function toBits(): array;
 
     /**
-     * Convert hash into a decimal string.
+     * Return bytes of hash.
+     */
+    public function toBytes(): string;
+
+    /**
+     * Calculate decimal representation of hash.
      */
     public function toDecimal(): string;
 
     /**
-     * Transform hash to binary string.
+     * Return bit length of hash.
      */
-    public function toBytes(): string;
+    public function bitLength(): int;
 }

@@ -5,29 +5,20 @@ declare(strict_types=1);
 namespace Intervention\ImageHash;
 
 use Intervention\Image\Exceptions\InvalidArgumentException;
+use Intervention\Image\Exceptions\RuntimeException;
 use Intervention\ImageHash\Interfaces\HashInterface;
 use JsonSerializable;
 use Stringable;
 
 class Hash implements HashInterface, Stringable, JsonSerializable
 {
-    private const int BITS_PER_BYTE = 8;
-    private const int HEX_DIGITS_PER_BYTE = 2;
-
     /**
-     * @param array<int> $bytes
      * @throws InvalidArgumentException
      */
-    private function __construct(protected array $bytes)
+    private function __construct(readonly protected string $bytes)
     {
-        if (count($bytes) === 0) {
-            throw new InvalidArgumentException('Unable to create hash from empty array of bytes.');
-        }
-
-        foreach ($this->bytes as $byte) {
-            if (!is_int($byte) || $byte < 0 || $byte > 255) {
-                throw new InvalidArgumentException('Hash bytes must be integers between 0 and 255.');
-            }
+        if (strlen($this->bytes) === 0) {
+            throw new InvalidArgumentException("Hash must be a non-empty string");
         }
     }
 
@@ -36,49 +27,43 @@ class Hash implements HashInterface, Stringable, JsonSerializable
      */
     public static function fromHex(string $hash): self
     {
-        if ($hash === '') {
-            throw new InvalidArgumentException('Hash must be a non-empty hexadecimal string.');
+        $hash = strtolower($hash);
+
+        if (!ctype_xdigit($hash)) {
+            throw new InvalidArgumentException("Hash must be a valid hexadecimal string");
         }
 
-        if (!preg_match('/\A[0-9a-fA-F]+\z/', $hash)) {
-            throw new InvalidArgumentException('Hash must be a hexadecimal string.');
+        if (strlen($hash) % 2 !== 0) {
+            throw new InvalidArgumentException("Hash must be a even length hexadecimal string");
         }
 
-        if (strlen($hash) % self::HEX_DIGITS_PER_BYTE !== 0) {
-            throw new InvalidArgumentException('Hash must contain an even number of hexadecimal characters.');
+        $bytes = hex2bin($hash);
+
+        if ($bytes === false) {
+            throw new RuntimeException("Failed to convert hex to binary");
         }
 
-        return new self(array_map('hexdec', str_split($hash, self::HEX_DIGITS_PER_BYTE)));
+        return new self($bytes);
     }
 
     /**
      * Create hash from concatinated bit string or array of bits.
      *
-     * @param string|array<int|string|bool> $hash
+     * @param array<int|string|bool> $hash
      */
     public static function fromBits(string|array $hash): self
     {
-        if (is_array($hash)) {
-            if (count($hash) === 0) {
-                throw new InvalidArgumentException('Unable to create hash from empty array of bits.');
-            }
+        $hash = is_string($hash) ? str_split($hash) : $hash;
 
-            // normalize array to concatinated bit string
-            $hash = implode('', array_map(fn(mixed $bit) => new BitParser($bit), $hash));
+        if (count($hash) === 0) {
+            throw new InvalidArgumentException('Unable to create hash from empty array of bits.');
         }
 
-        if ($hash === '') {
-            throw new InvalidArgumentException('Hash must be a non-empty string.');
-        }
+        $bits = array_map(fn(mixed $bit): string => (string) new BitParser($bit), $hash);
+        $bytes = array_map(fn(array $bits): string => implode('', $bits), array_chunk($bits, 8));
+        $bytes = array_map(fn(string $byte): string => pack('C', bindec($byte)), $bytes);
 
-        if (!preg_match('/\A[01]+\z/', $hash)) {
-            throw new InvalidArgumentException('Hash must contain only bits ("0" or "1").');
-        }
-
-        $length = (int) ceil(strlen($hash) / self::BITS_PER_BYTE) * self::BITS_PER_BYTE;
-        $hash = str_pad($hash, $length, '0', STR_PAD_LEFT);
-
-        return new self(array_map('bindec', str_split($hash, self::BITS_PER_BYTE)));
+        return new self(implode('', $bytes));
     }
 
     /**
@@ -133,11 +118,7 @@ class Hash implements HashInterface, Stringable, JsonSerializable
      */
     public static function fromBytes(string $hash): self
     {
-        if ($hash === '') {
-            throw new InvalidArgumentException('Hash must be a non-empty string.');
-        }
-
-        return new self(array_map('ord', str_split($hash)));
+        return new self($hash);
     }
 
     /**
@@ -147,9 +128,11 @@ class Hash implements HashInterface, Stringable, JsonSerializable
      */
     public function toHex(): string
     {
-        return join('', array_map(function (int $byte): string {
-            return str_pad(dechex($byte), self::HEX_DIGITS_PER_BYTE, '0', STR_PAD_LEFT);
-        }, $this->bytes));
+        $bytes = str_split($this->bytes);
+        $bytes = array_map(fn(string $byte): string => dechex(ord($byte)), $bytes);
+        $bytes = array_map(fn(string $byte): string => str_pad($byte, 2, '0', STR_PAD_LEFT), $bytes);
+
+        return implode('', $bytes);
     }
 
     /**
@@ -157,11 +140,14 @@ class Hash implements HashInterface, Stringable, JsonSerializable
      *
      * @see HashInterface::toBits()
      */
-    public function toBits(): string
+    public function toBits(): array
     {
-        return join('', array_map(function (int $byte): string {
-            return str_pad(decbin($byte), self::BITS_PER_BYTE, '0', STR_PAD_LEFT);
-        }, $this->bytes));
+        $bytes = str_split($this->bytes);
+        $bytes = array_map(fn(string $byte): string => decbin(ord($byte)), $bytes);
+        $bytes = array_map(fn(string $byte): string => str_pad($byte, 8, '0', STR_PAD_LEFT), $bytes);
+        $bytes = array_map(fn(string $byte): array => str_split($byte), $bytes);
+
+        return array_merge(...$bytes);
     }
 
     /**
@@ -171,17 +157,10 @@ class Hash implements HashInterface, Stringable, JsonSerializable
      */
     public function toDecimal(): string
     {
-        $bits = ltrim($this->toBits(), '0');
-
-        if ($bits === '') {
-            return '0';
-        }
+        $bits = implode('', $this->toBits());
 
         if (extension_loaded('gmp') && function_exists('gmp_init') && function_exists('gmp_strval')) {
-            $gmpInit = 'gmp_init';
-            $gmpStrval = 'gmp_strval';
-
-            return $gmpStrval($gmpInit($bits, 2), 10);
+            return gmp_strval(gmp_init($bits, 2), 10);
         }
 
         $decimal = '0';
@@ -210,7 +189,7 @@ class Hash implements HashInterface, Stringable, JsonSerializable
      */
     public function toBytes(): string
     {
-        return join('', array_map('chr', $this->bytes));
+        return $this->bytes;
     }
 
     /**
@@ -220,13 +199,12 @@ class Hash implements HashInterface, Stringable, JsonSerializable
      */
     public function distance(HashInterface $hash): int
     {
+        if ($this->bitLength() !== $hash->bitLength()) {
+            throw new InvalidArgumentException("Hashes must be of equal length");
+        }
+
         $bits1 = $this->toBits();
         $bits2 = $hash->toBits();
-
-        // normalize bit strings to same length
-        $length = max(strlen($bits1), strlen($bits2));
-        $bits1 = str_pad($bits1, $length, '0', STR_PAD_LEFT);
-        $bits2 = str_pad($bits2, $length, '0', STR_PAD_LEFT);
 
         if (extension_loaded('gmp') && function_exists('gmp_hamdist')) {
             return gmp_hamdist('0b1' . $bits1, '0b1' . $bits2);
@@ -240,9 +218,19 @@ class Hash implements HashInterface, Stringable, JsonSerializable
      *
      * @see HashInterface::equals()
      */
-    public function equals(HashInterface $hash): bool
+    public function equals(HashInterface $hash, int $leeway = 0): bool
     {
-        return $this->distance($hash) === 0;
+        return $this->distance($hash) <= $leeway;
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @see HashInterface::bitLength()
+     */
+    public function bitLength(): int
+    {
+        return strlen($this->bytes) * 8;
     }
 
     /**
