@@ -17,8 +17,8 @@ class Hash implements HashInterface, Stringable, JsonSerializable
      */
     private function __construct(readonly protected string $bytes)
     {
-        if (strlen($this->bytes) === 0) {
-            throw new InvalidArgumentException("Hash must be a non-empty string");
+        if (strlen($this->bytes) < 1) {
+            throw new InvalidArgumentException("A hash must be created of at least one byte");
         }
     }
 
@@ -27,14 +27,18 @@ class Hash implements HashInterface, Stringable, JsonSerializable
      */
     public static function fromHex(string $hash): self
     {
+        if (strlen($hash) < 2) {
+            throw new InvalidArgumentException("Hash must be created of at least one byte hexadecimal string");
+        }
+
         $hash = strtolower($hash);
 
         if (!ctype_xdigit($hash)) {
-            throw new InvalidArgumentException("Hash must be a valid hexadecimal string");
+            throw new InvalidArgumentException("Hash must be created from valid hexadecimal strings");
         }
 
         if (strlen($hash) % 2 !== 0) {
-            throw new InvalidArgumentException("Hash must be a even length hexadecimal string");
+            throw new InvalidArgumentException("Hash must be created from an even length hexadecimal string");
         }
 
         $bytes = hex2bin($hash);
@@ -55,8 +59,8 @@ class Hash implements HashInterface, Stringable, JsonSerializable
     {
         $hash = is_string($hash) ? str_split($hash) : $hash;
 
-        if (count($hash) === 0) {
-            throw new InvalidArgumentException('Unable to create hash from empty array of bits.');
+        if (count($hash) < 8) {
+            throw new InvalidArgumentException('Hash must be created from at least 8 bits');
         }
 
         $bits = array_map(fn(mixed $bit): string => (string) new BitParser($bit), $hash);
@@ -64,53 +68,6 @@ class Hash implements HashInterface, Stringable, JsonSerializable
         $bytes = array_map(fn(string $byte): string => pack('C', bindec($byte)), $bytes);
 
         return new self(implode('', $bytes));
-    }
-
-    /**
-     * Create hash from decimal string.
-     */
-    public static function fromDecimal(string $decimal): self
-    {
-        if ($decimal === '') {
-            throw new InvalidArgumentException('Hash must be a non-empty string.');
-        }
-
-        if (!preg_match('/\A[0-9]+\z/', $decimal)) {
-            throw new InvalidArgumentException('Hash must be a decimal string.');
-        }
-
-        $decimal = ltrim($decimal, '0');
-
-        if ($decimal === '') {
-            return self::fromBits('0');
-        }
-
-        if (extension_loaded('gmp') && function_exists('gmp_init') && function_exists('gmp_strval')) {
-            return self::fromBits(gmp_strval(gmp_init($decimal, 10), 2));
-        }
-
-        $bits = '';
-
-        while ($decimal !== '0') {
-            $next = '';
-            $carry = 0;
-            $length = strlen($decimal);
-
-            for ($index = 0; $index < $length; $index++) {
-                $value = ($carry * 10) + (int) $decimal[$index];
-                $digit = intdiv($value, 2);
-                $carry = $value % 2;
-
-                if ($digit !== 0 || $next !== '') {
-                    $next .= (string) $digit;
-                }
-            }
-
-            $bits = (string) $carry . $bits;
-            $decimal = $next === '' ? '0' : $next;
-        }
-
-        return self::fromBits($bits);
     }
 
     /**
@@ -140,46 +97,14 @@ class Hash implements HashInterface, Stringable, JsonSerializable
      *
      * @see HashInterface::toBits()
      */
-    public function toBits(): array
+    public function toBits(): string
     {
         $bytes = str_split($this->bytes);
         $bytes = array_map(fn(string $byte): string => decbin(ord($byte)), $bytes);
         $bytes = array_map(fn(string $byte): string => str_pad($byte, 8, '0', STR_PAD_LEFT), $bytes);
         $bytes = array_map(fn(string $byte): array => str_split($byte), $bytes);
 
-        return array_merge(...$bytes);
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @see HashInterface::toDecimal()
-     */
-    public function toDecimal(): string
-    {
-        $bits = implode('', $this->toBits());
-
-        if (extension_loaded('gmp') && function_exists('gmp_init') && function_exists('gmp_strval')) {
-            return gmp_strval(gmp_init($bits, 2), 10);
-        }
-
-        $decimal = '0';
-        $length = strlen($bits);
-
-        for ($index = 0; $index < $length; $index++) {
-            $keep = (int) $bits[$index];
-            for ($pos = strlen($decimal) - 1; $pos >= 0; $pos--) {
-                $value = ((int) $decimal[$pos] * 2) + $keep;
-                $decimal[$pos] = (string) ($value % 10);
-                $keep = intdiv($value, 10);
-            }
-
-            if ($keep > 0) {
-                $decimal = (string) $keep . $decimal;
-            }
-        }
-
-        return $decimal;
+        return implode('', array_merge(...$bytes));
     }
 
     /**

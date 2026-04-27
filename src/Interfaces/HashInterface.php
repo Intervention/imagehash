@@ -24,19 +24,14 @@ interface HashInterface extends Stringable
     public function toHex(): string;
 
     /**
-     * Convert hash into a array of bits.
+     * Convert hash into a concatinated string of bits.
      */
-    public function toBits(): array;
+    public function toBits(): string;
 
     /**
      * Return bytes of hash.
      */
     public function toBytes(): string;
-
-    /**
-     * Calculate decimal representation of hash.
-     */
-    public function toDecimal(): string;
 
     /**
      * Return bit length of hash.
