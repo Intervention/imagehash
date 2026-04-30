@@ -25,23 +25,23 @@ class Hash implements HashInterface, Stringable, JsonSerializable
     /**
      * Create hash from hexadecimal string.
      */
-    public static function fromHex(string $hash): self
+    public static function fromHex(string $hex): self
     {
-        if (strlen($hash) < 2) {
+        if (strlen($hex) < 2) {
             throw new InvalidArgumentException("Hash must be created of at least one byte hexadecimal string");
         }
 
-        $hash = strtolower($hash);
+        $hex = strtolower($hex);
 
-        if (!ctype_xdigit($hash)) {
+        if (!ctype_xdigit($hex)) {
             throw new InvalidArgumentException("Hash must be created from valid hexadecimal strings");
         }
 
-        if (strlen($hash) % 2 !== 0) {
+        if (strlen($hex) % 2 !== 0) {
             throw new InvalidArgumentException("Hash must be created from an even length hexadecimal string");
         }
 
-        $bytes = hex2bin($hash);
+        $bytes = hex2bin($hex);
 
         if ($bytes === false) {
             throw new RuntimeException("Failed to convert hex to binary");
@@ -53,17 +53,17 @@ class Hash implements HashInterface, Stringable, JsonSerializable
     /**
      * Create hash from concatinated bit string or array of bits.
      *
-     * @param array<int|string|bool> $hash
+     * @param array<int|string|bool> $bits
      */
-    public static function fromBits(string|array $hash): self
+    public static function fromBits(string|array $bits): self
     {
-        $hash = is_string($hash) ? str_split($hash) : $hash;
+        $bits = is_string($bits) ? str_split($bits) : $bits;
 
-        if (count($hash) < 8) {
+        if (count($bits) < 8) {
             throw new InvalidArgumentException('Hash must be created from at least 8 bits');
         }
 
-        $bits = array_map(fn(mixed $bit): string => (string) new BitParser($bit), $hash);
+        $bits = array_map(fn(mixed $bit): string => (string) new BitParser($bit), $bits);
         $bytes = array_map(fn(array $bits): string => implode('', $bits), array_chunk($bits, 8));
         $bytes = array_map(fn(string $byte): string => pack('C', bindec($byte)), $bytes);
 
@@ -73,23 +73,23 @@ class Hash implements HashInterface, Stringable, JsonSerializable
     /**
      * Create hash from given byte string.
      */
-    public static function fromBytes(string $hash): self
+    public static function fromBytes(string $bytes): self
     {
-        return new self($hash);
+        return new self($bytes);
     }
 
     /**
      * Create hash from a base64-encoded string.
      */
-    public static function fromBase64(string $hash): self
+    public static function fromBase64(string $base64): self
     {
-        $hash = base64_decode($hash, strict: true);
+        $base64 = base64_decode($base64, strict: true);
 
-        if ($hash === false) {
+        if ($base64 === false) {
             throw new InvalidArgumentException('Unable to base64-decode string');
         }
 
-        return new self($hash);
+        return new self($base64);
     }
 
     /**
