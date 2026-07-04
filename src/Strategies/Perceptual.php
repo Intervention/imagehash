@@ -6,13 +6,14 @@ namespace Intervention\ImageHash\Strategies;
 
 use Intervention\Image\Exceptions\InvalidArgumentException;
 use Intervention\Image\Exceptions\RuntimeException;
+use Intervention\Image\Interfaces\AnalyzerInterface;
 use Intervention\Image\Interfaces\ImageInterface;
 use Intervention\ImageHash\Hash;
 use Intervention\ImageHash\Interfaces\StrategyInterface;
 use Intervention\ImageHash\Analyzers\RgbArrayAnalyzer;
 use Intervention\ImageHash\Interfaces\HashInterface;
 
-class Perceptual implements StrategyInterface
+class Perceptual implements StrategyInterface, AnalyzerInterface
 {
     public const string AVERAGE = 'average';
     public const string MEDIAN = 'median';
@@ -31,6 +32,17 @@ class Perceptual implements StrategyInterface
         if (!in_array($this->comparisonMethod, [self::AVERAGE, self::MEDIAN])) {
             throw new InvalidArgumentException('Unknown comparison mode ' . $comparisonMethod);
         }
+    }
+
+    /**
+     * Build hash from given image.
+     *
+     * @throws RuntimeException
+     * @throws InvalidArgumentException
+     */
+    public function analyze(ImageInterface $image): HashInterface
+    {
+        return $this->hash(clone $image);
     }
 
     /**

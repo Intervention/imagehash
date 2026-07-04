@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace Intervention\ImageHash\Strategies;
 
 use Intervention\Image\Exceptions\InvalidArgumentException;
+use Intervention\Image\Interfaces\AnalyzerInterface;
 use Intervention\Image\Interfaces\ImageInterface;
 use Intervention\ImageHash\Hash;
 use Intervention\ImageHash\Interfaces\StrategyInterface;
 use Intervention\ImageHash\Analyzers\RgbArrayAnalyzer;
 use Intervention\ImageHash\Interfaces\HashInterface;
 
-class Difference implements StrategyInterface
+class Difference implements StrategyInterface, AnalyzerInterface
 {
     /**
      * @throws InvalidArgumentException
@@ -21,6 +22,16 @@ class Difference implements StrategyInterface
         if ($this->size <= 0) {
             throw new InvalidArgumentException('Invalid size. Must be int<1, max>');
         }
+    }
+
+    /**
+     * Build hash from given image.
+     *
+     * @throws InvalidArgumentException
+     */
+    public function analyze(ImageInterface $image): HashInterface
+    {
+        return $this->hash(clone $image);
     }
 
     /**

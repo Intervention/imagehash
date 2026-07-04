@@ -6,13 +6,14 @@ namespace Intervention\ImageHash\Strategies;
 
 use Intervention\Image\Exceptions\InvalidArgumentException;
 use Intervention\Image\Exceptions\RuntimeException;
+use Intervention\Image\Interfaces\AnalyzerInterface;
 use Intervention\Image\Interfaces\ImageInterface;
 use Intervention\ImageHash\Hash;
 use Intervention\ImageHash\Interfaces\StrategyInterface;
 use Intervention\ImageHash\Analyzers\RgbArrayAnalyzer;
 use Intervention\ImageHash\Interfaces\HashInterface;
 
-class Block implements StrategyInterface
+class Block implements StrategyInterface, AnalyzerInterface
 {
     public const string PRECISE = 'precise';
     public const string QUICK = 'quick';
@@ -35,6 +36,17 @@ class Block implements StrategyInterface
         if (!in_array($this->mode, [self::QUICK, self::PRECISE])) {
             throw new InvalidArgumentException('Unknown mode ' . $this->mode);
         }
+    }
+
+    /**
+     * Build hash from given image.
+     *
+     * @throws RuntimeException
+     * @throws InvalidArgumentException
+     */
+    public function analyze(ImageInterface $image): HashInterface
+    {
+        return $this->hash(clone $image);
     }
 
     /**

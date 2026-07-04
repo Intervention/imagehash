@@ -6,13 +6,14 @@ namespace Intervention\ImageHash\Strategies;
 
 use Intervention\Image\Exceptions\InvalidArgumentException;
 use Intervention\Image\Exceptions\RuntimeException;
+use Intervention\Image\Interfaces\AnalyzerInterface;
 use Intervention\Image\Interfaces\ImageInterface;
 use Intervention\ImageHash\Hash;
 use Intervention\ImageHash\Interfaces\StrategyInterface;
 use Intervention\ImageHash\Analyzers\RgbArrayAnalyzer;
 use Intervention\ImageHash\Interfaces\HashInterface;
 
-class Average implements StrategyInterface
+class Average implements StrategyInterface, AnalyzerInterface
 {
     /**
      * @throws InvalidArgumentException
@@ -22,6 +23,17 @@ class Average implements StrategyInterface
         if ($this->size <= 0) {
             throw new InvalidArgumentException('Invalid size. Must be int<1, max>');
         }
+    }
+
+    /**
+     * Build hash from given image.
+     *
+     * @throws RuntimeException
+     * @throws InvalidArgumentException
+     */
+    public function analyze(ImageInterface $image): HashInterface
+    {
+        return $this->hash(clone $image);
     }
 
     /**
