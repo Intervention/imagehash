@@ -23,7 +23,7 @@ class RgbArrayAnalyzer implements AnalyzerInterface
     {
         return array_map(
             fn(ColorChannelInterface $channel): int => (int) $channel->value(),
-            $image->colorAt($this->x, $this->y)->toColorspace(Rgb::class)->channels()
+            $image->colorAt($this->x, $this->y)->toColorspace(Rgb::class)->channels(),
         );
     }
 }

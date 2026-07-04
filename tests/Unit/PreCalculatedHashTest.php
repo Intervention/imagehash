@@ -23,7 +23,7 @@ class PreCalculatedHashTest extends TestCase
                 $precalculated,
                 $hex,
                 "Strategy " . $strategy::class . " with driver " . $driver::class . " generated " .
-                    "a different hash for image " . $path . ": " . $hex . ' instead of ' . $precalculated
+                    "a different hash for image " . $path . ": " . $hex . ' instead of ' . $precalculated,
             );
         }
     }
