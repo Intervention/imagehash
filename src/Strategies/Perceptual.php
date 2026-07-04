@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Intervention\ImageHash\Strategies;
 
 use Intervention\Image\Exceptions\InvalidArgumentException;
+use Intervention\Image\Exceptions\RuntimeException;
 use Intervention\Image\Interfaces\ImageInterface;
 use Intervention\ImageHash\Hash;
 use Intervention\ImageHash\Interfaces\StrategyInterface;
@@ -16,8 +17,13 @@ class Perceptual implements StrategyInterface
     public const string AVERAGE = 'average';
     public const string MEDIAN = 'median';
 
-    public function __construct(protected int $size = 32, protected string $comparisonMethod = self::AVERAGE)
-    {
+    /**
+     * @throws InvalidArgumentException
+     */
+    public function __construct(
+        readonly protected int $size = 32,
+        readonly protected string $comparisonMethod = self::AVERAGE,
+    ) {
         if ($this->size < 8) {
             throw new InvalidArgumentException('Size must be at least 8');
         }
@@ -31,6 +37,9 @@ class Perceptual implements StrategyInterface
      * {@inheritdoc}
      *
      * @see StrategyInterface::hash()
+     *
+     * @throws RuntimeException
+     * @throws InvalidArgumentException
      */
     public function hash(ImageInterface $image): HashInterface
     {
@@ -128,9 +137,16 @@ class Perceptual implements StrategyInterface
      * Get the average of the pixel values.
      *
      * @param array<float> $pixels
+     * @throws RuntimeException
      */
     protected function average(array $pixels): float
     {
-        return array_sum($pixels) / count($pixels);
+        $pixelCount = count($pixels);
+
+        if ($pixelCount === 0) {
+            throw new RuntimeException('Unable to calculate average values from zero pixels.');
+        }
+
+        return array_sum($pixels) / $pixelCount;
     }
 }

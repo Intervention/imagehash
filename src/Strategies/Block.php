@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Intervention\ImageHash\Strategies;
 
 use Intervention\Image\Exceptions\InvalidArgumentException;
+use Intervention\Image\Exceptions\RuntimeException;
 use Intervention\Image\Interfaces\ImageInterface;
 use Intervention\ImageHash\Hash;
 use Intervention\ImageHash\Interfaces\StrategyInterface;
@@ -16,8 +17,17 @@ class Block implements StrategyInterface
     public const string PRECISE = 'precise';
     public const string QUICK = 'quick';
 
-    public function __construct(protected int $size = 16, protected string $mode = self::PRECISE)
-    {
+    /**
+     * @throws InvalidArgumentException
+     */
+    public function __construct(
+        readonly protected int $size = 16,
+        readonly protected string $mode = self::PRECISE,
+    ) {
+        if ($this->size <= 0) {
+            throw new InvalidArgumentException('Invalid size. Must be int<1, max>');
+        }
+
         if ($this->size % 4 !== 0) {
             throw new InvalidArgumentException('Amount of bits needs to be dividable by 4');
         }
@@ -29,6 +39,9 @@ class Block implements StrategyInterface
 
     /**
      * Build the blockhash for the given image.
+     *
+     * @throws RuntimeException
+     * @throws InvalidArgumentException
      */
     public function hash(ImageInterface $image): HashInterface
     {
@@ -41,6 +54,8 @@ class Block implements StrategyInterface
 
     /**
      * Compute hash using even, non-overlapping blocks.
+     *
+     * @throws InvalidArgumentException
      */
     protected function even(ImageInterface $image): HashInterface
     {
@@ -72,6 +87,9 @@ class Block implements StrategyInterface
 
     /**
      * Compute hash using weighted blocks for uneven dimensions.
+     *
+     * @throws RuntimeException
+     * @throws InvalidArgumentException
      */
     protected function uneven(ImageInterface $image): HashInterface
     {
@@ -85,6 +103,10 @@ class Block implements StrategyInterface
         }
         $blockWidth = $imageWidth / $this->size;
         $blockHeight = $imageHeight / $this->size;
+
+        if ($blockWidth === 0 || $blockHeight === 0) {
+            throw new RuntimeException('Unable to compute hash from zero width/height value.');
+        }
 
         // Initialize empty blocks.
         $blocks = [];
@@ -189,6 +211,7 @@ class Block implements StrategyInterface
      * Convert block values into hash bits.
      *
      * @param array<float> $blocks
+     * @throws InvalidArgumentException
      */
     protected function blocksToBits(array $blocks, float $pixelsPerBlock): HashInterface
     {

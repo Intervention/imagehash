@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Intervention\ImageHash\Strategies;
 
+use Intervention\Image\Exceptions\InvalidArgumentException;
 use Intervention\Image\Interfaces\ImageInterface;
 use Intervention\ImageHash\Hash;
 use Intervention\ImageHash\Interfaces\StrategyInterface;
@@ -12,15 +13,22 @@ use Intervention\ImageHash\Interfaces\HashInterface;
 
 class Difference implements StrategyInterface
 {
-    public function __construct(protected int $size = 8)
+    /**
+     * @throws InvalidArgumentException
+     */
+    public function __construct(readonly protected int $size = 8)
     {
-        //
+        if ($this->size <= 0) {
+            throw new InvalidArgumentException('Invalid size. Must be int<1, max>');
+        }
     }
 
     /**
      * {@inheritdoc}
      *
      * @see StrategyInterface::hash()
+     *
+     * @throws InvalidArgumentException
      */
     public function hash(ImageInterface $image): HashInterface
     {

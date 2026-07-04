@@ -24,6 +24,9 @@ class Hash implements HashInterface, Stringable, JsonSerializable
 
     /**
      * Create hash from hexadecimal string.
+     *
+     * @throws InvalidArgumentException
+     * @throws RuntimeException
      */
     public static function fromHex(string $hex): self
     {
@@ -54,6 +57,7 @@ class Hash implements HashInterface, Stringable, JsonSerializable
      * Create hash from concatinated bit string or array of bits.
      *
      * @param array<int|string|bool> $bits
+     * @throws InvalidArgumentException
      */
     public static function fromBits(string|array $bits): self
     {
@@ -72,6 +76,8 @@ class Hash implements HashInterface, Stringable, JsonSerializable
 
     /**
      * Create hash from given byte string.
+     *
+     * @throws InvalidArgumentException
      */
     public static function fromBytes(string $bytes): self
     {
@@ -80,6 +86,8 @@ class Hash implements HashInterface, Stringable, JsonSerializable
 
     /**
      * Create hash from a base64-encoded string.
+     *
+     * @throws InvalidArgumentException
      */
     public static function fromBase64(string $base64): self
     {
@@ -145,6 +153,8 @@ class Hash implements HashInterface, Stringable, JsonSerializable
      * {@inheritdoc}
      *
      * @see HashInterface::distance()
+     *
+     * @throws InvalidArgumentException
      */
     public function distance(HashInterface $hash): int
     {
@@ -166,6 +176,8 @@ class Hash implements HashInterface, Stringable, JsonSerializable
      * {@inheritdoc}
      *
      * @see HashInterface::equals()
+     *
+     * @throws InvalidArgumentException
      */
     public function equals(HashInterface $hash, int $leeway = 0): bool
     {
