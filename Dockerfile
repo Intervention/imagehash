@@ -1,38 +1,37 @@
-FROM php:8.3-cli
+FROM php:8.3-cli-alpine
 
-ARG IMAGEMAGICK_VERSION=7.1.2-15
+ARG IMAGEMAGICK_VERSION=7.1.2-26
 
 # install dependencies for building ImageMagick and PHP extensions
-RUN apt update \
-        && apt install -y \
-            libjpeg-dev \
-            libgif-dev \
-            libtiff-dev \
-            libpng-dev \
-            libwebp-dev \
-            libavif-dev \
-            libheif-dev \
-            libraqm-dev \
-            libopenjp2-7-dev \
-            liblcms2-dev \
-            libgmp-dev \
-            git \
-            zip \
-            curl \
-            xz-utils \
-        && ln -s /usr/include/x86_64-linux-gnu/gmp.h /usr/include/gmp.h \
-        && apt-get clean
+RUN apk add --no-cache \
+        jpeg-dev \
+        giflib-dev \
+        tiff-dev \
+        libpng-dev \
+        libwebp-dev \
+        libavif-dev \
+        libheif-dev \
+        harfbuzz-dev \
+        openjpeg-dev \
+        lcms2-dev \
+        freetype-dev \
+        git \
+        zip \
+        curl \
+        7zip \
+        autoconf \
+        g++ \
+        make
 
 # build and install ImageMagick from source
-RUN curl -o /tmp/ImageMagick.tar.xz -sL \
-        "https://imagemagick.org/archive/releases/ImageMagick-${IMAGEMAGICK_VERSION}.tar.xz" \
+RUN curl -o /tmp/ImageMagick.7z -sL \
+        "https://github.com/ImageMagick/ImageMagick/releases/download/${IMAGEMAGICK_VERSION}/ImageMagick-${IMAGEMAGICK_VERSION}.7z" \
         && cd /tmp \
-        && tar xf ImageMagick.tar.xz \
+        && 7z x ImageMagick.7z \
         && cd "ImageMagick-${IMAGEMAGICK_VERSION}" \
         && ./configure \
         && make -j$(nproc) \
         && make install \
-        && ldconfig \
         && cd / \
         && rm -rf /tmp/ImageMagick*
 
@@ -44,7 +43,6 @@ RUN pecl install imagick \
             imagick \
             xdebug \
         && docker-php-ext-install \
-            gmp \
             gd \
             exif
 
