@@ -6,11 +6,11 @@
 [![Monthly Downloads](https://img.shields.io/packagist/dm/intervention/imagehash.svg)](https://packagist.org/packages/intervention/imagehash/stats)
 [![Support me on Ko-fi](https://raw.githubusercontent.com/Intervention/imagehash/develop/.github/images/support.svg)](https://ko-fi.com/interventionphp)
 
-> A perceptual hash is a fingerprint of a multimedia file derived from various features from its content. Unlike cryptographic hash functions which rely on the avalanche effect of small changes in input leading to drastic changes in the output, perceptual hashes are "close" to one another if the features are similar.
+A perceptual hash is a fingerprint of a multimedia file derived from various features from its content. Unlike cryptographic hash functions which rely on the avalanche effect of small changes in input leading to drastic changes in the output, perceptual hashes are "close" to one another if the features are similar.
 
 ## Installation
 
-Install this library using [Composer](https://getcomposer.org). Simply request the package with the following command:
+Install this library using [Composer](https://getcomposer.org). Add the package with the following command:
 
 ```bash
 composer require intervention/imagehash
@@ -31,7 +31,7 @@ The library comes with four built-in hashing strategies:
  - `Intervention\ImageHash\Strategies\Block` - Hash based on blockhash.io
  - `Intervention\ImageHash\Strategies\Perceptual` - The original pHash
 
-Choose one of these strategies. If you don't know which one to use, try the `Difference` strategy. Some strategies allow some configuration, be sure to check the constructors.
+Choose one of these strategies. If you don't know which one to use, try the `Difference` strategy. Some strategies allow configuration, be sure to check the constructors.
 
 To generate hashes, the `hash()` method is used, which can read from [various image sources](https://image.intervention.io/v4/basics/instantiation#supported-image-sources) like paths, raw image data and more.
 
@@ -42,29 +42,27 @@ use Intervention\ImageHash\Strategies\Difference;
 
 $hasher = new ImageHasher(new GdDriver(), new Difference());
 $hash = $hasher->hash('path/to/image.jpg');
-
-echo $hash;
-// or
-echo $hash->toHex();
 ```
 
 #### ImageHashAnalyzer
 
-Alternatively, you can choose not to use `ImageHasher` and use the `ImageHashAnalyzer` instead. This integrates more seamlessly into an existing Intervention Image processing pipeline, if you already have instances of `Intervention\Image\Interfaces\ImageInterface` - the results remain the same.
+Alternatively, you can choose to use `Image::analyze()` method instead of the `ImageHasher`. This integrates more seamlessly into an existing Intervention Image processing pipeline, if you already have instances of `Intervention\Image\Interfaces\ImageInterface` - the results remain the same.
 
 ```php
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver as GdDriver;
-use Intervention\ImageHash\Analyzers\ImageHashAnalyzer;
+use Intervention\ImageHash\Strategies\Difference;
 
 $image = ImageManager::usingDriver(GdDriver::class)
     ->decodePath('path/to/image.jpg')
     ->scale(width: 300);
 
-$hash = $image->analyze(new ImageHashAnalyzer(new Difference()));
+$hash = $image->analyze(new Difference()); // all strategies are possible here
 ```
 
 ### Hash
+
+#### Comparing Hashes
 
 The resulting `Hash` object, is a hexadecimal image fingerprint that can be stored once calculated. Two fingerprints can be compared by the hamming distance for similarities. Low distance values will indicate that the images are similar or the same, high distance values indicate that the images are different. Use the following methods for comparisons:
 
@@ -77,13 +75,17 @@ Perceptual hashes are a different concept compared to cryptographic hash functio
 
 A perceptual hash is a compact summary of visual features. Because of that, the hashes are influenced by the input images, the processing strategy and the processing pipeline and may vary with its distance to other hashes depending on these factors.
 
-The `Hash` object can return the internal binary hash in a couple of different format:
+#### Converting Hashes
+
+The `Hash` object can be converted to a couple of different formats:
 
 ```php
 echo $hash->toHex(); // "74657374"
 echo $hash->toBits(); // "01110100011001010111001101110100"
 echo $hash->toBytes(); // "test"
 ```
+
+#### Parsing Hashes
 
 If you want to reconstruct a `Hash` object from a previous calculated value, use:
 
