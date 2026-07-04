@@ -18,7 +18,7 @@ composer require intervention/imagehash
 
 ## Usage
 
-### Hashing
+### Building Hashes
 
 #### ImageHasher
 
@@ -60,9 +60,7 @@ $image = ImageManager::usingDriver(GdDriver::class)
 $hash = $image->analyze(new Difference()); // all strategies are possible here
 ```
 
-### Hash
-
-#### Comparing Hashes
+### Comparing Hashes
 
 The resulting `Hash` object, is a hexadecimal image fingerprint that can be stored once calculated. Two fingerprints can be compared by the hamming distance for similarities. Low distance values will indicate that the images are similar or the same, high distance values indicate that the images are different. Use the following methods for comparisons:
 
@@ -75,7 +73,7 @@ Perceptual hashes are a different concept compared to cryptographic hash functio
 
 A perceptual hash is a compact summary of visual features. Because of that, the hashes are influenced by the input images, the processing strategy and the processing pipeline and may vary with its distance to other hashes depending on these factors.
 
-#### Converting Hashes
+### Converting Hashes
 
 The `Hash` object can be converted to a couple of different formats:
 
@@ -85,7 +83,7 @@ echo $hash->toBits(); // "01110100011001010111001101110100"
 echo $hash->toBytes(); // "test"
 ```
 
-#### Parsing Hashes
+### Parsing Hashes
 
 If you want to reconstruct a `Hash` object from a previous calculated value, use:
 
