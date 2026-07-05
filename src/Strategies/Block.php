@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Intervention\ImageHash\Strategies;
 
 use Intervention\Image\Exceptions\InvalidArgumentException;
-use Intervention\Image\Exceptions\RuntimeException;
 use Intervention\Image\Interfaces\AnalyzerInterface;
 use Intervention\Image\Interfaces\ImageInterface;
 use Intervention\ImageHash\Hash;
 use Intervention\ImageHash\Interfaces\StrategyInterface;
 use Intervention\ImageHash\Analyzers\RgbArrayAnalyzer;
+use Intervention\ImageHash\Exceptions\ImageHashException;
 use Intervention\ImageHash\Interfaces\HashInterface;
 
 class Block implements StrategyInterface, AnalyzerInterface
@@ -41,7 +41,7 @@ class Block implements StrategyInterface, AnalyzerInterface
     /**
      * Build hash from given image.
      *
-     * @throws RuntimeException
+     * @throws ImageHashException
      * @throws InvalidArgumentException
      */
     public function analyze(ImageInterface $image): HashInterface
@@ -52,7 +52,7 @@ class Block implements StrategyInterface, AnalyzerInterface
     /**
      * Build the blockhash for the given image.
      *
-     * @throws RuntimeException
+     * @throws ImageHashException
      * @throws InvalidArgumentException
      */
     public function hash(ImageInterface $image): HashInterface
@@ -100,7 +100,7 @@ class Block implements StrategyInterface, AnalyzerInterface
     /**
      * Compute hash using weighted blocks for uneven dimensions.
      *
-     * @throws RuntimeException
+     * @throws ImageHashException
      * @throws InvalidArgumentException
      */
     protected function uneven(ImageInterface $image): HashInterface
@@ -117,7 +117,7 @@ class Block implements StrategyInterface, AnalyzerInterface
         $blockHeight = $imageHeight / $this->size;
 
         if ($blockWidth === 0 || $blockHeight === 0) {
-            throw new RuntimeException('Unable to compute hash from zero width/height value.');
+            throw new ImageHashException('Unable to compute hash from zero width/height value.');
         }
 
         // Initialize empty blocks.

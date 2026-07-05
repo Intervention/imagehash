@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Intervention\ImageHash\Strategies;
 
 use Intervention\Image\Exceptions\InvalidArgumentException;
-use Intervention\Image\Exceptions\RuntimeException;
 use Intervention\Image\Interfaces\AnalyzerInterface;
 use Intervention\Image\Interfaces\ImageInterface;
 use Intervention\ImageHash\Hash;
 use Intervention\ImageHash\Interfaces\StrategyInterface;
 use Intervention\ImageHash\Analyzers\RgbArrayAnalyzer;
+use Intervention\ImageHash\Exceptions\ImageHashException;
 use Intervention\ImageHash\Interfaces\HashInterface;
 
 class Perceptual implements StrategyInterface, AnalyzerInterface
@@ -37,7 +37,7 @@ class Perceptual implements StrategyInterface, AnalyzerInterface
     /**
      * Build hash from given image.
      *
-     * @throws RuntimeException
+     * @throws ImageHashException
      * @throws InvalidArgumentException
      */
     public function analyze(ImageInterface $image): HashInterface
@@ -50,7 +50,7 @@ class Perceptual implements StrategyInterface, AnalyzerInterface
      *
      * @see StrategyInterface::hash()
      *
-     * @throws RuntimeException
+     * @throws ImageHashException
      * @throws InvalidArgumentException
      */
     public function hash(ImageInterface $image): HashInterface
@@ -149,14 +149,14 @@ class Perceptual implements StrategyInterface, AnalyzerInterface
      * Get the average of the pixel values.
      *
      * @param array<float> $pixels
-     * @throws RuntimeException
+     * @throws ImageHashException
      */
     protected function average(array $pixels): float
     {
         $pixelCount = count($pixels);
 
         if ($pixelCount === 0) {
-            throw new RuntimeException('Unable to calculate average values from zero pixels.');
+            throw new ImageHashException('Unable to calculate average values from zero pixels.');
         }
 
         return array_sum($pixels) / $pixelCount;

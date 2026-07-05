@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Intervention\ImageHash;
 
 use Intervention\Image\Exceptions\InvalidArgumentException;
-use Intervention\Image\Exceptions\RuntimeException;
+use Intervention\ImageHash\Exceptions\ImageHashException;
 use Intervention\ImageHash\Interfaces\HashInterface;
 use JsonSerializable;
 use Stringable;
@@ -26,7 +26,7 @@ class Hash implements HashInterface, Stringable, JsonSerializable
      * Create hash from hexadecimal string.
      *
      * @throws InvalidArgumentException
-     * @throws RuntimeException
+     * @throws ImageHashException
      */
     public static function fromHex(string $hex): self
     {
@@ -47,7 +47,7 @@ class Hash implements HashInterface, Stringable, JsonSerializable
         $bytes = hex2bin($hex);
 
         if ($bytes === false) {
-            throw new RuntimeException("Failed to convert hex to binary");
+            throw new ImageHashException("Failed to convert hex to binary");
         }
 
         return new self($bytes);
