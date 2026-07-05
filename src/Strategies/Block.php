@@ -222,7 +222,7 @@ class Block implements StrategyInterface, AnalyzerInterface
     /**
      * Convert block values into hash bits.
      *
-     * @param array<float> $blocks
+     * @param array<int> $blocks
      * @throws InvalidArgumentException
      */
     protected function blocksToBits(array $blocks, float $pixelsPerBlock): HashInterface
