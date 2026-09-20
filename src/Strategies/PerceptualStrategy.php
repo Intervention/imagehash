@@ -155,7 +155,7 @@ class PerceptualStrategy implements StrategyInterface, AnalyzerInterface
         $pixelCount = count($pixels);
 
         if ($pixelCount === 0) {
-            throw new ImageHashException('Unable to calculate average values from zero pixels.');
+            throw new ImageHashException('Unable to calculate average values from zero pixels');
         }
 
         return array_sum($pixels) / $pixelCount;
