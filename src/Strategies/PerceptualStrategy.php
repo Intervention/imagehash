@@ -12,7 +12,7 @@ use Intervention\ImageHash\Interfaces\StrategyInterface;
 use Intervention\ImageHash\Analyzers\RgbArrayAnalyzer;
 use Intervention\ImageHash\Exceptions\ImageHashException;
 
-class Perceptual implements StrategyInterface, AnalyzerInterface
+class PerceptualStrategy implements StrategyInterface, AnalyzerInterface
 {
     public const string AVERAGE = 'average';
     public const string MEDIAN = 'median';

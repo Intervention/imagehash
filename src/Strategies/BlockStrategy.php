@@ -12,7 +12,7 @@ use Intervention\ImageHash\Interfaces\StrategyInterface;
 use Intervention\ImageHash\Analyzers\RgbArrayAnalyzer;
 use Intervention\ImageHash\Exceptions\ImageHashException;
 
-class Block implements StrategyInterface, AnalyzerInterface
+class BlockStrategy implements StrategyInterface, AnalyzerInterface
 {
     public const string PRECISE = 'precise';
     public const string QUICK = 'quick';
