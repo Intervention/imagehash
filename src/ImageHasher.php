@@ -6,13 +6,12 @@ namespace Intervention\ImageHash;
 
 use Intervention\Image\Exceptions\InvalidArgumentException;
 use Intervention\ImageHash\Analyzers\ImageHashAnalyzer;
-use Intervention\ImageHash\Interfaces\ImageHasherInterface;
 use Intervention\ImageHash\Interfaces\StrategyInterface;
 use Intervention\ImageHash\Strategies\Difference;
 use Intervention\Image\Interfaces\DriverInterface;
 use Intervention\Image\Traits\CanResolveDriver;
 
-class ImageHasher implements ImageHasherInterface
+class ImageHasher
 {
     use CanResolveDriver;
 
@@ -67,9 +66,16 @@ class ImageHasher implements ImageHasherInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Build image hash from given image source which can be one of the following:
      *
-     * @see ImageHasherInterface::hash()
+     * - Path in filesystem
+     * - Raw binary image data
+     * - SplFileInfo object
+     * - Base64 encoded image data
+     * - Data URI string or instance of DataUriInterface
+     * - Stream resource
+     * - Instance of ImageInterface
+     * - Instance of EncodedImageInterface
      */
     public function hash(mixed $image): Hash
     {
