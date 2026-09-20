@@ -28,21 +28,21 @@ The `ImageHasher` serves as the central starting point for all hashing operation
 
 The library comes with four built-in hashing strategies:
 
- - `Intervention\ImageHash\Strategies\Average` - Hash based the average image color
- - `Intervention\ImageHash\Strategies\Difference` - Hash based on the previous pixel
- - `Intervention\ImageHash\Strategies\Block` - Hash based on blockhash.io
- - `Intervention\ImageHash\Strategies\Perceptual` - The original pHash
+ - `Intervention\ImageHash\Strategies\AverageStrategy` - Hash based the average image color
+ - `Intervention\ImageHash\Strategies\DifferenceStrategy` - Hash based on the previous pixel
+ - `Intervention\ImageHash\Strategies\BlockStrategy` - Hash based on blockhash.io
+ - `Intervention\ImageHash\Strategies\PerceptualStrategy` - The original pHash
 
-Choose one of these strategies. If you don't know which one to use, try the `Difference` strategy. Some strategies allow configuration, be sure to check the constructors.
+Choose one of these strategies. If you don't know which one to use, try the `DifferenceStrategy`. Some strategies allow configuration, be sure to check the constructors.
 
 To generate hashes, the `hash()` method is used, which can read from [various image sources](https://image.intervention.io/v4/basics/instantiation#supported-image-sources) like paths, raw image data and more.
 
 ```php
 use Intervention\Image\Drivers\Gd\Driver as GdDriver;
 use Intervention\ImageHash\ImageHasher;
-use Intervention\ImageHash\Strategies\Difference;
+use Intervention\ImageHash\Strategies\DifferenceStrategy;
 
-$hasher = new ImageHasher(new GdDriver(), new Difference());
+$hasher = new ImageHasher(new GdDriver(), new DifferenceStrategy());
 $hash = $hasher->hash('path/to/image.jpg');
 ```
 
@@ -53,13 +53,13 @@ Alternatively, you can choose to use `Image::analyze()` method instead of the `I
 ```php
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver as GdDriver;
-use Intervention\ImageHash\Strategies\Difference;
+use Intervention\ImageHash\Strategies\DifferenceStrategy;
 
 $image = ImageManager::usingDriver(GdDriver::class)
     ->decodePath('path/to/image.jpg')
     ->scale(width: 300);
 
-$hash = $image->analyze(new Difference()); // all strategies are possible here
+$hash = $image->analyze(new DifferenceStrategy()); // all strategies are possible here
 ```
 
 ### Comparing Hashes

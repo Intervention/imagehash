@@ -6,10 +6,7 @@ namespace Intervention\ImageHash\Tests\Providers;
 
 use Generator;
 use Intervention\ImageHash\Hash;
-use Intervention\ImageHash\Strategies\Average;
-use Intervention\ImageHash\Strategies\Block;
-use Intervention\ImageHash\Strategies\Difference;
-use Intervention\ImageHash\Strategies\Perceptual;
+use Intervention\ImageHash\Strategies;
 use stdClass;
 
 class HashDataProvider
@@ -209,25 +206,25 @@ class HashDataProvider
     public static function providePrecalculatedHashes(): Generator
     {
         yield [
-            new Average(),
+            new Strategies\AverageStrategy(),
             __DIR__ . '/../images/mountain_day.jpg',
             'ffffff0700000000',
         ];
 
         yield [
-            new Block(),
+            new Strategies\BlockStrategy(),
             __DIR__ . '/../images/mountain_day.jpg',
             '00006082ffbeff9fff1fff7f003c00001fff1edf041f0006c4fcfc009f00cbfc',
         ];
 
         yield [
-            new Difference(),
+            new Strategies\DifferenceStrategy(),
             __DIR__ . '/../images/mountain_day.jpg',
             '6c2b58432011e38e',
         ];
 
         yield [
-            new Perceptual(),
+            new Strategies\PerceptualStrategy(),
             __DIR__ . '/../images/mountain_day.jpg',
             '84e4d9011332ae60',
         ];

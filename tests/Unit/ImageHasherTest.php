@@ -9,8 +9,7 @@ use Intervention\Image\Drivers\Imagick\Driver as ImagickDriver;
 use Intervention\Image\Interfaces\DriverInterface;
 use Intervention\ImageHash\ImageHasher;
 use Intervention\ImageHash\Interfaces\StrategyInterface;
-use Intervention\ImageHash\Strategies\Block;
-use Intervention\ImageHash\Strategies\Difference;
+use Intervention\ImageHash\Strategies;
 use Intervention\ImageHash\Tests\Providers\DriverProvider;
 use PHPUnit\Framework\Attributes\DataProviderExternal;
 use PHPUnit\Framework\TestCase;
@@ -41,9 +40,9 @@ class ImageHasherTest extends TestCase
 
     public function testWithStrategy(): void
     {
-        $differenceHasher = new ImageHasher(new GdDriver(), new Difference());
-        $blockHasher = $differenceHasher->withStrategy(new Block());
-        $this->assertInstanceOf(Difference::class, $differenceHasher->strategy);
-        $this->assertInstanceOf(Block::class, $blockHasher->strategy);
+        $differenceHasher = new ImageHasher(new GdDriver(), new Strategies\DifferenceStrategy());
+        $blockHasher = $differenceHasher->withStrategy(new Strategies\BlockStrategy());
+        $this->assertInstanceOf(Strategies\DifferenceStrategy::class, $differenceHasher->strategy);
+        $this->assertInstanceOf(Strategies\BlockStrategy::class, $blockHasher->strategy);
     }
 }

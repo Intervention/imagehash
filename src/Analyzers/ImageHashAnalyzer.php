@@ -8,11 +8,11 @@ use Intervention\Image\Interfaces\AnalyzerInterface;
 use Intervention\Image\Interfaces\ImageInterface;
 use Intervention\ImageHash\Hash;
 use Intervention\ImageHash\Interfaces\StrategyInterface;
-use Intervention\ImageHash\Strategies\Difference;
+use Intervention\ImageHash\Strategies\DifferenceStrategy;
 
 class ImageHashAnalyzer implements AnalyzerInterface
 {
-    public function __construct(protected StrategyInterface $strategy = new Difference())
+    public function __construct(protected StrategyInterface $strategy = new DifferenceStrategy())
     {
         //
     }

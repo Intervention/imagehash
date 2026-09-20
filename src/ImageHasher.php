@@ -7,7 +7,7 @@ namespace Intervention\ImageHash;
 use Intervention\Image\Exceptions\InvalidArgumentException;
 use Intervention\ImageHash\Analyzers\ImageHashAnalyzer;
 use Intervention\ImageHash\Interfaces\StrategyInterface;
-use Intervention\ImageHash\Strategies\Difference;
+use Intervention\ImageHash\Strategies\DifferenceStrategy;
 use Intervention\Image\Interfaces\DriverInterface;
 use Intervention\Image\Traits\CanResolveDriver;
 
@@ -20,7 +20,7 @@ class ImageHasher
      */
     public function __construct(
         public string|DriverInterface $driver,
-        public StrategyInterface $strategy = new Difference(),
+        public StrategyInterface $strategy = new DifferenceStrategy(),
     ) {
         $this->driver = $this->resolveDriver($driver);
     }
@@ -30,8 +30,10 @@ class ImageHasher
      *
      * @throws InvalidArgumentException
      */
-    public static function create(string|DriverInterface $driver, StrategyInterface $strategy = new Difference()): self
-    {
+    public static function create(
+        string|DriverInterface $driver,
+        StrategyInterface $strategy = new DifferenceStrategy(),
+    ): self {
         return new self($driver, $strategy);
     }
 
