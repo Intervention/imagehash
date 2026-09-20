@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Intervention\ImageHash\Interfaces;
 
+use Intervention\ImageHash\Hash;
+
 interface ImageHasherInterface
 {
     /**
@@ -18,5 +20,5 @@ interface ImageHasherInterface
      * - Instance of ImageInterface
      * - Instance of EncodedImageInterface
      */
-    public function hash(mixed $image): HashInterface;
+    public function hash(mixed $image): Hash;
 }

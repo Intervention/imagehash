@@ -11,7 +11,6 @@ use Intervention\ImageHash\Hash;
 use Intervention\ImageHash\Interfaces\StrategyInterface;
 use Intervention\ImageHash\Analyzers\RgbArrayAnalyzer;
 use Intervention\ImageHash\Exceptions\ImageHashException;
-use Intervention\ImageHash\Interfaces\HashInterface;
 
 class Block implements StrategyInterface, AnalyzerInterface
 {
@@ -44,7 +43,7 @@ class Block implements StrategyInterface, AnalyzerInterface
      * @throws ImageHashException
      * @throws InvalidArgumentException
      */
-    public function analyze(ImageInterface $image): HashInterface
+    public function analyze(ImageInterface $image): Hash
     {
         return $this->hash(clone $image);
     }
@@ -55,7 +54,7 @@ class Block implements StrategyInterface, AnalyzerInterface
      * @throws ImageHashException
      * @throws InvalidArgumentException
      */
-    public function hash(ImageInterface $image): HashInterface
+    public function hash(ImageInterface $image): Hash
     {
         if ($this->mode === self::QUICK) {
             return $this->even($image);
@@ -69,7 +68,7 @@ class Block implements StrategyInterface, AnalyzerInterface
      *
      * @throws InvalidArgumentException
      */
-    protected function even(ImageInterface $image): HashInterface
+    protected function even(ImageInterface $image): Hash
     {
         $width = $image->width();
         $height = $image->height();
@@ -103,7 +102,7 @@ class Block implements StrategyInterface, AnalyzerInterface
      * @throws ImageHashException
      * @throws InvalidArgumentException
      */
-    protected function uneven(ImageInterface $image): HashInterface
+    protected function uneven(ImageInterface $image): Hash
     {
         $imageWidth = $image->width();
         $imageHeight = $image->height();
@@ -225,7 +224,7 @@ class Block implements StrategyInterface, AnalyzerInterface
      * @param array<int> $blocks
      * @throws InvalidArgumentException
      */
-    protected function blocksToBits(array $blocks, float $pixelsPerBlock): HashInterface
+    protected function blocksToBits(array $blocks, float $pixelsPerBlock): Hash
     {
         $halfBlockValue = $pixelsPerBlock * 256 * 3 / 2;
 

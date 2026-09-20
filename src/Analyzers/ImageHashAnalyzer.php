@@ -6,7 +6,7 @@ namespace Intervention\ImageHash\Analyzers;
 
 use Intervention\Image\Interfaces\AnalyzerInterface;
 use Intervention\Image\Interfaces\ImageInterface;
-use Intervention\ImageHash\Interfaces\HashInterface;
+use Intervention\ImageHash\Hash;
 use Intervention\ImageHash\Interfaces\StrategyInterface;
 use Intervention\ImageHash\Strategies\Difference;
 
@@ -17,7 +17,7 @@ class ImageHashAnalyzer implements AnalyzerInterface
         //
     }
 
-    public function analyze(ImageInterface $image): HashInterface
+    public function analyze(ImageInterface $image): Hash
     {
         return $this->strategy->hash(clone $image);
     }

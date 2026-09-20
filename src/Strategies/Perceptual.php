@@ -11,7 +11,6 @@ use Intervention\ImageHash\Hash;
 use Intervention\ImageHash\Interfaces\StrategyInterface;
 use Intervention\ImageHash\Analyzers\RgbArrayAnalyzer;
 use Intervention\ImageHash\Exceptions\ImageHashException;
-use Intervention\ImageHash\Interfaces\HashInterface;
 
 class Perceptual implements StrategyInterface, AnalyzerInterface
 {
@@ -40,7 +39,7 @@ class Perceptual implements StrategyInterface, AnalyzerInterface
      * @throws ImageHashException
      * @throws InvalidArgumentException
      */
-    public function analyze(ImageInterface $image): HashInterface
+    public function analyze(ImageInterface $image): Hash
     {
         return $this->hash(clone $image);
     }
@@ -53,7 +52,7 @@ class Perceptual implements StrategyInterface, AnalyzerInterface
      * @throws ImageHashException
      * @throws InvalidArgumentException
      */
-    public function hash(ImageInterface $image): HashInterface
+    public function hash(ImageInterface $image): Hash
     {
         $resized = $image->resize($this->size, $this->size);
 

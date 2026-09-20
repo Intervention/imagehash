@@ -6,7 +6,6 @@ namespace Intervention\ImageHash\Tests\Unit;
 
 use Intervention\Image\Exceptions\InvalidArgumentException;
 use Intervention\ImageHash\Hash;
-use Intervention\ImageHash\Interfaces\HashInterface;
 use Intervention\ImageHash\Tests\Providers\HashDataProvider;
 use PHPUnit\Framework\Attributes\DataProviderExternal;
 use PHPUnit\Framework\TestCase;
@@ -38,7 +37,7 @@ class HashTest extends TestCase
     }
 
     #[DataProviderExternal(HashDataProvider::class, 'provideHashEquals')]
-    public function testEquals(HashInterface $a, HashInterface $b, bool $equal): void
+    public function testEquals(Hash $a, Hash $b, bool $equal): void
     {
         $this->assertEquals($equal, $a->equals($b));
     }

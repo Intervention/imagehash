@@ -6,7 +6,6 @@ namespace Intervention\ImageHash;
 
 use Intervention\Image\Exceptions\InvalidArgumentException;
 use Intervention\ImageHash\Analyzers\ImageHashAnalyzer;
-use Intervention\ImageHash\Interfaces\HashInterface;
 use Intervention\ImageHash\Interfaces\ImageHasherInterface;
 use Intervention\ImageHash\Interfaces\StrategyInterface;
 use Intervention\ImageHash\Strategies\Difference;
@@ -72,7 +71,7 @@ class ImageHasher implements ImageHasherInterface
      *
      * @see ImageHasherInterface::hash()
      */
-    public function hash(mixed $image): HashInterface
+    public function hash(mixed $image): Hash
     {
         return $this->driver->decodeImage($image)->analyze(new ImageHashAnalyzer($this->strategy));
     }

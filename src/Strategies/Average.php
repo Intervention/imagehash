@@ -11,7 +11,6 @@ use Intervention\Image\Interfaces\ImageInterface;
 use Intervention\ImageHash\Hash;
 use Intervention\ImageHash\Interfaces\StrategyInterface;
 use Intervention\ImageHash\Analyzers\RgbArrayAnalyzer;
-use Intervention\ImageHash\Interfaces\HashInterface;
 
 class Average implements StrategyInterface, AnalyzerInterface
 {
@@ -31,7 +30,7 @@ class Average implements StrategyInterface, AnalyzerInterface
      * @throws RuntimeException
      * @throws InvalidArgumentException
      */
-    public function analyze(ImageInterface $image): HashInterface
+    public function analyze(ImageInterface $image): Hash
     {
         return $this->hash(clone $image);
     }
@@ -44,7 +43,7 @@ class Average implements StrategyInterface, AnalyzerInterface
      * @throws RuntimeException
      * @throws InvalidArgumentException
      */
-    public function hash(ImageInterface $image): HashInterface
+    public function hash(ImageInterface $image): Hash
     {
         $resized = $image->resize($this->size, $this->size);
 

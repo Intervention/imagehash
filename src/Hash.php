@@ -6,11 +6,10 @@ namespace Intervention\ImageHash;
 
 use Intervention\Image\Exceptions\InvalidArgumentException;
 use Intervention\ImageHash\Exceptions\ImageHashException;
-use Intervention\ImageHash\Interfaces\HashInterface;
 use JsonSerializable;
 use Stringable;
 
-class Hash implements HashInterface, Stringable, JsonSerializable
+class Hash implements Stringable, JsonSerializable
 {
     /**
      * @throws InvalidArgumentException
@@ -101,9 +100,7 @@ class Hash implements HashInterface, Stringable, JsonSerializable
     }
 
     /**
-     * {@inheritdoc}
-     *
-     * @see HashInterface::toHex()
+     * Transform hash to hexadecimal string.
      */
     public function toHex(): string
     {
@@ -115,9 +112,7 @@ class Hash implements HashInterface, Stringable, JsonSerializable
     }
 
     /**
-     * {@inheritdoc}
-     *
-     * @see HashInterface::toBits()
+     * Convert hash into a concatinated string of bits.
      */
     public function toBits(): string
     {
@@ -130,9 +125,7 @@ class Hash implements HashInterface, Stringable, JsonSerializable
     }
 
     /**
-     * {@inheritdoc}
-     *
-     * @see HashInterface::toBytes()
+     * Return bytes of hash.
      */
     public function toBytes(): string
     {
@@ -140,9 +133,7 @@ class Hash implements HashInterface, Stringable, JsonSerializable
     }
 
     /**
-     * {@inheritdoc}
-     *
-     * @see HashInterface::toBase64()
+     * Return base64-encoded bytes of hash.
      */
     public function toBase64(): string
     {
@@ -150,13 +141,11 @@ class Hash implements HashInterface, Stringable, JsonSerializable
     }
 
     /**
-     * {@inheritdoc}
-     *
-     * @see HashInterface::distance()
+     * Calculate distance to given hash.
      *
      * @throws InvalidArgumentException
      */
-    public function distance(HashInterface $hash): int
+    public function distance(self $hash): int
     {
         if ($this->bitLength() !== $hash->bitLength()) {
             throw new InvalidArgumentException("Hashes must have the same bit length for comparison");
@@ -173,21 +162,17 @@ class Hash implements HashInterface, Stringable, JsonSerializable
     }
 
     /**
-     * {@inheritdoc}
-     *
-     * @see HashInterface::equals()
+     * Determine if given hash is equal to hash.
      *
      * @throws InvalidArgumentException
      */
-    public function equals(HashInterface $hash, int $leeway = 0): bool
+    public function equals(self $hash, int $leeway = 0): bool
     {
         return $this->distance($hash) <= $leeway;
     }
 
     /**
-     * {@inheritdoc}
-     *
-     * @see HashInterface::bitLength()
+     * Return bit length of hash.
      */
     public function bitLength(): int
     {
